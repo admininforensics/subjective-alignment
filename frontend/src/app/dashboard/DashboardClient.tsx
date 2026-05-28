@@ -44,9 +44,21 @@ export default function DashboardClient() {
   const start = useMutation({
     mutationFn: async () => apiFetch<{ session_id: number }>("/sessions/start/", { method: "POST" }),
     onSuccess: (data) => {
+      if (!data?.session_id) {
+        throw new Error("Start session did not return a session id");
+      }
       router.push(`/assessment/${data.session_id}`);
     },
   });
+
+  const goToAssessment = () => {
+    const existing = dashboard.data?.session?.id;
+    if (existing) {
+      router.push(`/assessment/${existing}`);
+      return;
+    }
+    start.mutate();
+  };
 
   const activate = useMutation({
     mutationFn: async () =>
@@ -133,7 +145,7 @@ export default function DashboardClient() {
             </div>
 
             <div className="grid gap-2">
-              <Button onClick={() => start.mutate()} disabled={start.isPending || !hasLicence}>
+              <Button onClick={goToAssessment} disabled={start.isPending || !hasLicence}>
                 {start.isPending ? "Starting…" : dashboard.data?.session ? "Continue" : "Start"}
               </Button>
               {!hasLicence ? (

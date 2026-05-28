@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { apiFetch } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
 import type { SessionDetailResponse } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -16,9 +17,18 @@ export default function AssessmentPage() {
   const qc = useQueryClient();
   const [cursor, setCursor] = useState<number>(0);
 
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const token = useMemo(() => (hydrated ? getAccessToken() : null), [hydrated]);
+  const sessionIdValid = Number.isFinite(sessionId) && sessionId > 0;
+
   const session = useQuery({
     queryKey: ["session", sessionId],
     queryFn: () => apiFetch<SessionDetailResponse>(`/sessions/${sessionId}/`),
+    enabled: hydrated && Boolean(token) && sessionIdValid,
   });
 
   const responsesByQuestion = useMemo(() => {
@@ -27,13 +37,18 @@ export default function AssessmentPage() {
     return m;
   }, [session.data?.responses]);
 
-  const firstUnansweredIdx = useMemo(() => {
-    const qs = session.data?.questions ?? [];
-    const idx = qs.findIndex((q) => !responsesByQuestion.has(q.id));
-    return idx === -1 ? 0 : idx;
-  }, [responsesByQuestion, session.data?.questions]);
+  const questions = session.data?.questions ?? [];
+  const questionCount = questions.length;
+  const currentIdx =
+    session.isSuccess && questionCount > 0
+      ? Math.min(Math.max(cursor, 0), questionCount - 1)
+      : 0;
+  const q = questions[currentIdx];
 
-  const currentIdx = session.isSuccess ? Math.min(Math.max(cursor || 0, 0), session.data.questions.length - 1) : 0;
+  const firstUnansweredIdx = useMemo(() => {
+    const idx = questions.findIndex((question) => !responsesByQuestion.has(question.id));
+    return idx === -1 ? 0 : idx;
+  }, [questions, responsesByQuestion]);
 
   const save = useMutation({
     mutationFn: async (payload: { question_id: number; raw_likert_score: number }) =>
@@ -46,13 +61,18 @@ export default function AssessmentPage() {
     },
   });
 
-  const answerAndAdvance = (raw_likert_score: number) => {
-    if (save.isPending || session.data?.session.status === "COMPLETED") return;
+  const complete = useMutation({
+    mutationFn: async () => apiFetch(`/sessions/${sessionId}/complete/`, { method: "POST" }),
+    onSuccess: () => router.replace(`/results/${sessionId}`),
+  });
 
-    const isLastQuestion = currentIdx === questions.length - 1;
+  const answerAndAdvance = (raw_likert_score: number) => {
+    if (!q || save.isPending || session.data?.session.status === "COMPLETED") return;
+
+    const isLastQuestion = currentIdx === questionCount - 1;
     const alreadyAnswered = responsesByQuestion.has(q.id);
     const answeredCountAfter = responsesByQuestion.size + (alreadyAnswered ? 0 : 1);
-    const willBeAllAnswered = answeredCountAfter === questions.length;
+    const willBeAllAnswered = answeredCountAfter === questionCount;
 
     save.mutate(
       { question_id: q.id, raw_likert_score },
@@ -63,26 +83,33 @@ export default function AssessmentPage() {
             complete.mutate();
             return;
           }
-          setCursor((i) => Math.min(i + 1, questions.length - 1));
+          setCursor((i) => Math.min(i + 1, questionCount - 1));
         },
       }
     );
   };
 
-  const complete = useMutation({
-    mutationFn: async () => apiFetch(`/sessions/${sessionId}/complete/`, { method: "POST" }),
-    onSuccess: () => router.replace(`/results/${sessionId}`),
-  });
-
+  if (!hydrated) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
+  if (!sessionIdValid) {
+    return <p className="p-6 text-sm text-destructive">Invalid session link.</p>;
+  }
+  if (!token) {
+    router.replace("/login");
+    return null;
+  }
   if (session.isLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
   if (session.error) return <p className="p-6 text-sm text-destructive">{session.error.message}</p>;
   if (!session.data) return <p className="p-6 text-sm text-muted-foreground">No session data.</p>;
+  if (!q) {
+    return (
+      <p className="p-6 text-sm text-destructive">
+        This assessment has no questions yet. Ask an admin to run the data seed on the server.
+      </p>
+    );
+  }
 
-  const questions = session.data.questions;
-  const q = questions[currentIdx];
   const selected = responsesByQuestion.get(q.id) ?? null;
-
-  const progress = session.data.session.progress * 100;
+  const progress = (session.data.session.progress ?? 0) * 100;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
@@ -101,7 +128,7 @@ export default function AssessmentPage() {
       <div className="mt-6 grid gap-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Question {currentIdx + 1} of {questions.length}
+            Question {currentIdx + 1} of {questionCount}
           </span>
           <span className="font-medium">{Math.round(progress)}%</span>
         </div>
@@ -136,21 +163,18 @@ export default function AssessmentPage() {
             </Button>
 
             <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setCursor(firstUnansweredIdx)}
-              >
+              <Button variant="secondary" onClick={() => setCursor(firstUnansweredIdx)}>
                 Jump to first unanswered
               </Button>
-              {currentIdx === questions.length - 1 ? (
+              {currentIdx === questionCount - 1 ? (
                 <Button
                   onClick={() => complete.mutate()}
-                  disabled={complete.isPending || (session.data.responses.length !== questions.length)}
+                  disabled={complete.isPending || session.data.responses.length !== questionCount}
                 >
                   Complete
                 </Button>
               ) : (
-                <Button onClick={() => setCursor((i) => Math.min(i + 1, questions.length - 1))}>
+                <Button onClick={() => setCursor((i) => Math.min(i + 1, questionCount - 1))}>
                   Next
                 </Button>
               )}
@@ -165,4 +189,3 @@ export default function AssessmentPage() {
     </div>
   );
 }
-

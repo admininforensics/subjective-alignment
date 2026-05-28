@@ -2,9 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
+import { getAccessToken } from "@/lib/auth";
 import type { ResultsResponse } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
+import { useMemo, useSyncExternalStore } from "react";
 import {
   Legend,
   PolarAngleAxis,
@@ -22,12 +24,29 @@ export default function ResultsPage() {
   const router = useRouter();
   const params = useParams<{ sessionId: string }>();
   const sessionId = Number(params.sessionId);
+  const sessionIdValid = Number.isFinite(sessionId) && sessionId > 0;
+
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const token = useMemo(() => (hydrated ? getAccessToken() : null), [hydrated]);
 
   const results = useQuery({
     queryKey: ["results", sessionId],
     queryFn: () => apiFetch<ResultsResponse>(`/results/${sessionId}/`),
+    enabled: hydrated && Boolean(token) && sessionIdValid,
   });
 
+  if (!hydrated) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
+  if (!sessionIdValid) {
+    return <p className="p-6 text-sm text-destructive">Invalid session link.</p>;
+  }
+  if (!token) {
+    router.replace("/login");
+    return null;
+  }
   if (results.isLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
   if (results.error) return <p className="p-6 text-sm text-destructive">{results.error.message}</p>;
   if (!results.data) return <p className="p-6 text-sm text-muted-foreground">No results data.</p>;

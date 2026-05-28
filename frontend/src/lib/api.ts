@@ -30,11 +30,22 @@ export async function apiFetch<T>(
   headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...init,
-    headers,
-    cache: "no-store",
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers,
+      cache: "no-store",
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Network request failed";
+    // Safari/WebKit often reports blocked or failed cross-origin requests as "Load failed".
+    throw new Error(
+      msg === "Load failed" || msg === "Failed to fetch"
+        ? `Could not reach API at ${API_URL}. Check NEXT_PUBLIC_API_URL and CORS settings.`
+        : msg
+    );
+  }
 
   if (res.status === 401 && _retry) {
     const newAccess = await refreshAccessToken();
