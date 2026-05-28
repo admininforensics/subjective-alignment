@@ -36,6 +36,9 @@ services:
     buildCommand: npm ci && npm run build
     startCommand: npm run start
     envVars:
+      # Ensure devDependencies are installed for build tooling (Tailwind/PostCSS).
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
       - key: NODE_ENV
         value: production
       # Set this to your backend public URL (must include /api), e.g.:
