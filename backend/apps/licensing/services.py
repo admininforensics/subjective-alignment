@@ -1,0 +1,185 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+from django.db import transaction
+from django.utils import timezone
+
+from apps.accounts.models import User, UserRole
+from apps.assessments.models import Assessment
+from apps.assessments.models import Question
+from apps.licensing.models import AssessmentSession, Licence, LicenceStatus, SessionStatus
+from apps.results.models import Response
+from apps.rules.services import evaluate_rules
+from apps.scoring.services import effective_score, score_session
+
+
+class LicenceError(ValueError):
+    pass
+
+
+class SessionError(ValueError):
+    pass
+
+
+@dataclass(frozen=True)
+class DashboardInfo:
+    assigned_licence: Licence | None
+    session: AssessmentSession | None
+    latest_completed_session: AssessmentSession | None
+    progress: float | None
+
+
+def get_dashboard_info(user: User) -> DashboardInfo:
+    assigned_licence = (
+        Licence.objects.filter(assigned_to=user)
+        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED])
+        .order_by("-purchased_at")
+        .first()
+    )
+
+    session = None
+    progress = None
+    if assigned_licence:
+        session = getattr(assigned_licence, "session", None)
+        if session:
+            total = Question.objects.filter(assessment=session.assessment).count()
+            answered = Response.objects.filter(session=session).count()
+            progress = (answered / total) if total else 0.0
+
+    latest_completed_session = (
+        AssessmentSession.objects.filter(respondent=user, status=SessionStatus.COMPLETED)
+        .order_by("-completed_at")
+        .first()
+    )
+
+    return DashboardInfo(
+        assigned_licence=assigned_licence,
+        session=session,
+        latest_completed_session=latest_completed_session,
+        progress=progress,
+    )
+
+
+@transaction.atomic
+def purchase_licence_for_user(*, user: User) -> Licence:
+    """
+    Creates and assigns a licence to the given user for the current active assessment.
+
+    Payment integration is intentionally out of scope for now; this is a stub that
+    enables the product flow and can later be gated behind PayFast verification.
+    """
+    if user.organisation_id is None:
+        raise LicenceError("User has no organisation")
+
+    assessment = Assessment.objects.filter(is_active=True).order_by("-created_at").first()
+    if not assessment:
+        raise LicenceError("No active assessment available")
+
+    licence = Licence.objects.create(
+        organisation_id=user.organisation_id,
+        assessment=assessment,
+        assigned_to=user,
+        assigned_by=None,
+        status=LicenceStatus.ASSIGNED,
+        assigned_at=timezone.now(),
+    )
+    return licence
+
+
+@transaction.atomic
+def start_session_for_user(user: User) -> AssessmentSession:
+    licence = (
+        Licence.objects.select_for_update()
+        .filter(assigned_to=user)
+        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED])
+        .order_by("-purchased_at")
+        .first()
+    )
+    if not licence:
+        raise LicenceError("No assigned active licence")
+
+    if licence.status == LicenceStatus.CONSUMED:
+        raise LicenceError("Assigned licence already consumed")
+
+    session = getattr(licence, "session", None)
+    if session:
+        if session.status in {SessionStatus.COMPLETED, SessionStatus.LOCKED}:
+            raise SessionError("Session already completed")
+        if session.status == SessionStatus.NOT_STARTED:
+            session.status = SessionStatus.IN_PROGRESS
+            session.started_at = session.started_at or timezone.now()
+        session.last_activity_at = timezone.now()
+        session.save(update_fields=["status", "started_at", "last_activity_at"])
+    else:
+        session = AssessmentSession.objects.create(
+            licence=licence,
+            respondent=user,
+            assessment=licence.assessment,
+            status=SessionStatus.IN_PROGRESS,
+            started_at=timezone.now(),
+            last_activity_at=timezone.now(),
+        )
+
+    licence.status = LicenceStatus.IN_PROGRESS
+    licence.assigned_at = licence.assigned_at or timezone.now()
+    licence.save(update_fields=["status", "assigned_at"])
+    return session
+
+
+@transaction.atomic
+def save_response(*, session: AssessmentSession, question: Question, raw_likert_score: int) -> Response:
+    session = AssessmentSession.objects.select_for_update().get(id=session.id)
+    if session.status in {SessionStatus.COMPLETED, SessionStatus.LOCKED}:
+        raise SessionError("Cannot edit a completed session")
+    if session.respondent_id is None:
+        raise SessionError("Session has no respondent")
+
+    eff = effective_score(raw_likert_score, question.reverse_logic)
+    response, _ = Response.objects.update_or_create(
+        session=session,
+        question=question,
+        defaults={
+            "raw_likert_score": raw_likert_score,
+            "effective_likert_score": eff,
+        },
+    )
+    session.status = SessionStatus.IN_PROGRESS
+    session.last_activity_at = timezone.now()
+    session.save(update_fields=["status", "last_activity_at"])
+    return response
+
+
+@transaction.atomic
+def complete_session(*, session: AssessmentSession) -> dict:
+    session = AssessmentSession.objects.select_for_update().select_related("licence").get(id=session.id)
+    if session.status in {SessionStatus.COMPLETED, SessionStatus.LOCKED}:
+        raise SessionError("Session already completed")
+
+    domain_results_by_name = score_session(session)
+    flags = evaluate_rules(session)
+
+    session.status = SessionStatus.COMPLETED
+    session.completed_at = timezone.now()
+    session.last_activity_at = timezone.now()
+    session.save(update_fields=["status", "completed_at", "last_activity_at"])
+
+    licence = Licence.objects.select_for_update().get(id=session.licence_id)
+    licence.status = LicenceStatus.CONSUMED
+    licence.consumed_at = timezone.now()
+    licence.save(update_fields=["status", "consumed_at"])
+
+    return {"domain_results_by_name": domain_results_by_name, "triggered_flags": flags}
+
+
+def can_view_session(*, actor: User, session: AssessmentSession) -> bool:
+    if actor.role == UserRole.SUPER_ADMIN:
+        return True
+    if session.respondent_id == actor.id:
+        return True
+    if actor.role == UserRole.ORG_ADMIN and actor.organisation_id == session.respondent.organisation_id:
+        return True
+    if actor.role == UserRole.MANAGER:
+        return actor.managed_assignments.filter(respondent_id=session.respondent_id).exists()
+    return False
+

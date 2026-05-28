@@ -1,0 +1,59 @@
+{
+  "project": "Subjective Alignment",
+  "question_count": 132,
+  "domain_count": 8,
+  "rule_count": 28,
+  "areas": [
+    "Circumstances",
+    "Context",
+    "Goals",
+    "Position",
+    "Subjectivity"
+  ],
+  "domains": [
+    {
+      "Domain": "Burnout Risk",
+      "Threshold": 267
+    },
+    {
+      "Domain": "Authenticity Strain",
+      "Threshold": 257
+    },
+    {
+      "Domain": "Suppressed Influence",
+      "Threshold": 118
+    },
+    {
+      "Domain": "Internal Contradiction",
+      "Threshold": 188
+    },
+    {
+      "Domain": "Structural Misfit",
+      "Threshold": 188
+    },
+    {
+      "Domain": "Old Wounds New Systems",
+      "Threshold": 173
+    },
+    {
+      "Domain": "Emotional Containment",
+      "Threshold": 210
+    },
+    {
+      "Domain": "Values Misalignment",
+      "Threshold": 137
+    }
+  ],
+  "business_decisions": {
+    "licensing": "organisation purchases licences for respondents",
+    "pause_resume": true,
+    "historical_repeats": false,
+    "results_visibility": [
+      "respondent",
+      "manager",
+      "organisation_admin",
+      "super_admin"
+    ],
+    "rule_logic": "PAIRWISE_AND, both domains must be above threshold"
+  }
+}

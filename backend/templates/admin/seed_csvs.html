@@ -1,0 +1,58 @@
+{% extends "admin/base_site.html" %}
+{% load dict_extras %}
+
+{% block content %}
+  <div class="module">
+    <h1>{{ title }}</h1>
+    <p>Directory: <code>{{ data_dir }}</code></p>
+
+    {% if not files %}
+      <p>No CSV files found.</p>
+    {% else %}
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th>Size</th>
+            <th>Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for f in files %}
+            <tr>
+              <td><code>{{ f.name }}</code></td>
+              <td>{{ f.size_bytes }} bytes</td>
+              <td>
+                <a href="{% url 'sa_admin:seed-csvs-download' filename=f.name %}">download</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <h2 style="margin-top: 2rem;">Preview (first rows)</h2>
+      {% for f in files %}
+        <div class="module" style="margin-top: 1rem;">
+          <h3><code>{{ f.name }}</code></h3>
+          {% with p=preview|get_item:f.name %}
+            {% if p.error %}
+              <p style="color: var(--error-fg);">Error reading: {{ p.error }}</p>
+            {% endif %}
+            <table>
+              <tbody>
+                {% for row in p.rows %}
+                  <tr>
+                    {% for cell in row %}
+                      <td style="white-space: nowrap;">{{ cell }}</td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          {% endwith %}
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+{% endblock %}
+
