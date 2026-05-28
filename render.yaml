@@ -44,4 +44,8 @@ services:
       # Set this to your backend public URL (must include /api), e.g.:
       # https://subjective-alignment-backend.onrender.com/api
       - key: NEXT_PUBLIC_API_URL
-        value: "http://localhost:8000/api"
+        value: "https://subjective-alignment-backend.onrender.com/api"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://subjective-alignment-frontend.onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://subjective-alignment-frontend.onrender.com"

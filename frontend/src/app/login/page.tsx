@@ -22,7 +22,7 @@ export default function LoginPage() {
     mutationFn: async () => {
       return apiFetch<LoginResponse>("/auth/login/", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
       });
     },
     onSuccess: (data) => {
