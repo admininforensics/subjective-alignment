@@ -51,16 +51,28 @@ python manage.py migrate
 
 Runs safely multiple times; updates/creates as needed.
 
+**Quick command (uses `/data` CSVs):**
+
+```bash
+cd backend
+source ../.venv/bin/activate
+python manage.py seed_default_assessment
+```
+
+**Explicit paths:**
+
 ```bash
 cd backend
 source ../.venv/bin/activate
 python manage.py seed_assessment \
-  --questions ../seed_data/sa-questions-likert.csv \
-  --thresholds ../seed_data/domain-thresholds.csv \
-  --rules ../seed_data/rules-bank.csv \
+  --questions ../data/sa-questions-likert.csv \
+  --thresholds ../data/domain-thresholds.csv \
+  --rules ../data/rules-bank.csv \
   --assessment-name "Subjective Alignment Assessment" \
   --assessment-version "1.0"
 ```
+
+**Render:** the backend runs `seed_default_assessment` automatically on each deploy (after migrations).
 
 ### 5) Run the API server
 
