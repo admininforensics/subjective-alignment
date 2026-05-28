@@ -41,6 +41,26 @@ This file is meant to stay **continuously updated** as we progress.
 
 ## Still to do
 
+- **Render + HTTPS go-live checklist**:
+  - **Blueprint setup**:
+    - Create Render Blueprint from `admininforensics/subjective-alignment` (uses `render.yaml`).
+    - Set frontend `NEXT_PUBLIC_API_URL` to `https://<backend>.onrender.com/api` (must include `/api`).
+  - **Backend env (Render → backend service → Environment)**:
+    - Ensure `DEBUG=False`, `SECURE_SSL_REDIRECT=True`.
+    - Add `CORS_ALLOWED_ORIGINS=https://<frontend>.onrender.com` (comma-separated if multiple).
+    - Add `CSRF_TRUSTED_ORIGINS=https://<frontend>.onrender.com` (comma-separated if multiple).
+    - Ensure `ALLOWED_HOSTS` includes `.onrender.com` and any custom domains.
+  - **Frontend deploy**:
+    - Redeploy frontend after setting `NEXT_PUBLIC_API_URL` (it’s baked in at build time).
+    - If build still fails, use “Clear build cache & deploy”.
+  - **Custom domain (optional)**:
+    - Add custom domain(s) to the **frontend** service in Render.
+    - Create DNS records at your registrar (as shown by Render).
+    - Wait for Render to provision SSL cert; confirm HTTPS works and HTTP redirects.
+  - **Smoke test**:
+    - Confirm login + signup works.
+    - Confirm API calls go to `https://<backend>.onrender.com/api/...` in browser Network tab.
+
 - **Onboarding (signup)**:
   - Add `/signup` page and `POST /api/auth/signup/` to create a respondent + organisation for local/demo use.
   - Later: replace with invitation-based onboarding (org admin issues invites) and stronger password policy / email verification.
