@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { apiFetch } from "@/lib/api";
-import { clearAuth, getAccessToken, getUser } from "@/lib/auth";
+import { getAccessToken } from "@/lib/auth";
 import { skipLicenceCheck } from "@/lib/features";
 import type { DashboardResponse } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -24,8 +24,6 @@ export default function DashboardClient() {
   );
 
   const token = useMemo(() => (hydrated ? getAccessToken() : null), [hydrated]);
-  const user = useMemo(() => (hydrated ? getUser() : null), [hydrated]);
-
   useEffect(() => {
     if (!hydrated) return;
     if (!token) router.replace("/login");
@@ -73,37 +71,43 @@ export default function DashboardClient() {
     },
   });
 
+  const restart = useMutation({
+    mutationFn: async () =>
+      apiFetch<{ session_id: number }>("/sessions/restart/", { method: "POST" }),
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ["dashboard"] });
+      router.push(`/assessment/${data.session_id}`);
+    },
+  });
+
+  const deleteCompleted = useMutation({
+    mutationFn: async () =>
+      apiFetch<{ deleted: boolean }>("/sessions/completed/", { method: "DELETE" }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+
   if (!hydrated) return null;
   if (!token) return null;
 
   const hasLicence = skipLicenceCheck || Boolean(dashboard.data?.assigned_licence);
   const canGenerateReport = Boolean(dashboard.data?.latest_result?.session_id);
+  const sessionStatus = dashboard.data?.session?.status;
+  const hasInProgressSession =
+    Boolean(dashboard.data?.session) &&
+    sessionStatus !== "COMPLETED" &&
+    sessionStatus !== "LOCKED";
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">{user ? `${user.email} · ${user.role}` : ""}</p>
-        </div>
-        <Button
-          variant="secondary"
-          onClick={() => {
-            clearAuth();
-            router.replace("/login");
-          }}
-        >
-          Sign out
-        </Button>
-      </div>
-
+    <>
       {dashboard.isLoading ? (
-        <p className="mt-8 text-sm text-muted-foreground">Loading…</p>
+        <p className="text-sm text-muted-foreground">Loading…</p>
       ) : dashboard.error ? (
-        <p className="mt-8 text-sm text-destructive">{dashboard.error.message}</p>
+        <p className="text-sm text-destructive">{dashboard.error.message}</p>
       ) : null}
 
-      <div className="mt-8 grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Assessment</CardTitle>
@@ -149,10 +153,50 @@ export default function DashboardClient() {
               <Button onClick={goToAssessment} disabled={start.isPending || !hasLicence}>
                 {start.isPending ? "Starting…" : dashboard.data?.session ? "Continue" : "Start"}
               </Button>
+              {hasInProgressSession ? (
+                <Button
+                  variant="secondary"
+                  disabled={restart.isPending || start.isPending}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        "Restart will clear your current answers and start the assessment from the beginning. Continue?"
+                      )
+                    ) {
+                      return;
+                    }
+                    restart.mutate();
+                  }}
+                >
+                  {restart.isPending ? "Restarting…" : "Restart assessment"}
+                </Button>
+              ) : null}
+              {canGenerateReport ? (
+                <Button
+                  variant="secondary"
+                  disabled={deleteCompleted.isPending}
+                  onClick={() => {
+                    if (
+                      !window.confirm(
+                        "Delete your previous completed assessment and results? This cannot be undone."
+                      )
+                    ) {
+                      return;
+                    }
+                    deleteCompleted.mutate();
+                  }}
+                >
+                  {deleteCompleted.isPending ? "Deleting…" : "Delete previous assessment"}
+                </Button>
+              ) : null}
               {!skipLicenceCheck && !dashboard.data?.assigned_licence ? (
                 <p className="text-sm text-muted-foreground">Activate a licence to start the assessment.</p>
               ) : null}
               {start.error ? <p className="text-sm text-destructive">{start.error.message}</p> : null}
+              {restart.error ? <p className="text-sm text-destructive">{restart.error.message}</p> : null}
+              {deleteCompleted.error ? (
+                <p className="text-sm text-destructive">{deleteCompleted.error.message}</p>
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -176,7 +220,7 @@ export default function DashboardClient() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </>
   );
 }
 

@@ -112,6 +112,18 @@ npm run dev
 
 Frontend URL: `http://localhost:3000`
 
+## Login background image
+
+Place your login screen artwork here:
+
+```text
+frontend/public/images/login-background.jpg
+```
+
+(PNG or WebP also work: name the file `login-background.png` or `login-background.webp` and update the path in `AuthLayout` if needed.)
+
+See `frontend/public/images/README.md` for details. Refresh the browser after adding the file.
+
 ## Creating users / organisations / licences
 
 ### Create a Django superuser (admin UI)

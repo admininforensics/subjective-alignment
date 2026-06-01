@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-heading);
   --color-brand: var(--brand);
   --color-brand-foreground: var(--brand-foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -51,89 +51,48 @@
 }
 
 :root {
-  /* Match RiskLab's dark, high-contrast UI by default. */
-  --background: #0f1419;
-  --foreground: #e6e9ef;
+  /* Calm, clinical light theme */
+  --background: #f6f8fa;
+  --foreground: #1e293b;
 
-  /* Surfaces */
-  --card: rgba(255, 255, 255, 0.04);
-  --card-foreground: #e6e9ef;
-  --popover: #0f1419;
-  --popover-foreground: #e6e9ef;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
 
-  /* Brand (RiskLab accent) */
-  --brand: #5cc8ff;
-  --brand-foreground: #0b1220;
+  /* Muted teal — professional, not startup-bright */
+  --brand: #3d6b84;
+  --brand-foreground: #ffffff;
 
-  /* Component tokens (map shadcn "primary" to brand) */
   --primary: var(--brand);
   --primary-foreground: var(--brand-foreground);
-  --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #e6e9ef;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #b3bdc9;
-  --accent: rgba(255, 255, 255, 0.06);
-  --accent-foreground: #e6e9ef;
-  --destructive: #ff6b6b;
+  --secondary: #eef2f6;
+  --secondary-foreground: #334155;
+  --muted: #eef2f6;
+  --muted-foreground: #64748b;
+  --accent: #e8f1f5;
+  --accent-foreground: #1e3a4d;
+  --destructive: #c45c5c;
 
-  --border: #20293a;
-  --input: #20293a;
-  --ring: var(--brand);
+  --border: #dde4ec;
+  --input: #dde4ec;
+  --ring: #3d6b84;
 
-  --chart-1: #5cc8ff;
-  --chart-2: #9aa4b2;
-  --chart-3: #b3bdc9;
-  --chart-4: #20293a;
-  --chart-5: #0f1322;
+  --chart-1: #3d6b84;
+  --chart-2: #6b8fa3;
+  --chart-3: #94a3b8;
+  --chart-4: #cbd5e1;
+  --chart-5: #e2e8f0;
 
-  /* RiskLab uses pill inputs/buttons and softer cards */
-  --radius: 1rem;
+  --radius: 0.625rem;
 
-  /* Sidebar (keep consistent with app tokens) */
-  --sidebar: #0f1419;
-  --sidebar-foreground: #e6e9ef;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e293b;
   --sidebar-primary: var(--brand);
   --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: rgba(255, 255, 255, 0.06);
-  --sidebar-accent-foreground: #e6e9ef;
-  --sidebar-border: #20293a;
-  --sidebar-ring: var(--brand);
-}
-
-.dark {
-  /* Keep .dark consistent with default tokens (RiskLab style). */
-  --background: #0f1419;
-  --foreground: #e6e9ef;
-  --card: rgba(255, 255, 255, 0.04);
-  --card-foreground: #e6e9ef;
-  --popover: #0f1419;
-  --popover-foreground: #e6e9ef;
-  --brand: #5cc8ff;
-  --brand-foreground: #0b1220;
-  --primary: var(--brand);
-  --primary-foreground: var(--brand-foreground);
-  --secondary: rgba(255, 255, 255, 0.06);
-  --secondary-foreground: #e6e9ef;
-  --muted: rgba(255, 255, 255, 0.06);
-  --muted-foreground: #b3bdc9;
-  --accent: rgba(255, 255, 255, 0.06);
-  --accent-foreground: #e6e9ef;
-  --destructive: #ff6b6b;
-  --border: #20293a;
-  --input: #20293a;
-  --ring: var(--brand);
-  --chart-1: #5cc8ff;
-  --chart-2: #9aa4b2;
-  --chart-3: #b3bdc9;
-  --chart-4: #20293a;
-  --chart-5: #0f1322;
-  --sidebar: #0f1419;
-  --sidebar-foreground: #e6e9ef;
-  --sidebar-primary: var(--brand);
-  --sidebar-primary-foreground: var(--brand-foreground);
-  --sidebar-accent: rgba(255, 255, 255, 0.06);
-  --sidebar-accent-foreground: #e6e9ef;
-  --sidebar-border: #20293a;
+  --sidebar-accent: #eef2f6;
+  --sidebar-accent-foreground: #334155;
+  --sidebar-border: #dde4ec;
   --sidebar-ring: var(--brand);
 }
 
@@ -142,12 +101,27 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
-    background: radial-gradient(1200px 600px at 0% 0%, #0b0a2a 0%, transparent 60%),
-      radial-gradient(1000px 600px at 100% 100%, #081d2e 0%, transparent 55%),
-      linear-gradient(180deg, #050418, #0f1419);
+    @apply bg-background text-foreground antialiased;
   }
   html {
     @apply font-sans;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    @apply tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  }
+  .transition-ui {
+    @apply transition-all duration-200 ease-out;
   }
 }

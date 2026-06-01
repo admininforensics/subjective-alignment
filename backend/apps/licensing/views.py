@@ -14,9 +14,12 @@ from apps.licensing.serializers import (
     SessionMiniSerializer,
 )
 from apps.licensing.services import (
+    SessionError,
     complete_session,
+    delete_latest_completed_session,
     get_dashboard_info,
     purchase_licence_for_user,
+    restart_in_progress_session,
     save_response,
     start_session_for_user,
 )
@@ -56,6 +59,28 @@ class StartSessionView(APIView):
     def post(self, request):
         session = start_session_for_user(request.user)
         return Response({"session_id": session.id, "status": session.status})
+
+
+class RestartSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            session = restart_in_progress_session(user=request.user)
+        except SessionError as exc:
+            return Response({"detail": str(exc)}, status=400)
+        return Response({"session_id": session.id, "status": session.status})
+
+
+class DeleteCompletedSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        try:
+            delete_latest_completed_session(user=request.user)
+        except SessionError as exc:
+            return Response({"detail": str(exc)}, status=400)
+        return Response({"deleted": True})
 
 
 class SessionDetailView(APIView):

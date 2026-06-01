@@ -1,5 +1,6 @@
 "use client";
 
+import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -47,11 +48,6 @@ export default function AssessmentPage() {
   const pageStart = currentPage * QUESTIONS_PER_PAGE;
   const pageQuestions = questions.slice(pageStart, pageStart + QUESTIONS_PER_PAGE);
   const pageEnd = pageStart + pageQuestions.length;
-
-  const firstUnansweredPage = useMemo(() => {
-    const idx = questions.findIndex((question) => !responsesByQuestion.has(question.id));
-    return idx === -1 ? 0 : Math.floor(idx / QUESTIONS_PER_PAGE);
-  }, [questions, responsesByQuestion]);
 
   const pageAllAnswered = pageQuestions.every((question) => responsesByQuestion.has(question.id));
   const allAnswered =
@@ -102,20 +98,12 @@ export default function AssessmentPage() {
   const isLastPage = currentPage === pageCount - 1;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-10">
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Assessment</h1>
-          <p className="text-sm text-muted-foreground">
-            Page {currentPage + 1} of {pageCount}
-          </p>
-        </div>
-        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
-          Back to dashboard
-        </Button>
-      </div>
-
-      <div className="mt-6 grid gap-2">
+    <AppShell
+      title="Assessment"
+      description={`Page ${currentPage + 1} of ${pageCount} · Questions ${pageStart + 1}–${pageEnd} of ${questionCount}`}
+    >
+      <div className="mx-auto max-w-3xl">
+      <div className="grid gap-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
             Questions {pageStart + 1}–{pageEnd} of {questionCount}
@@ -142,6 +130,7 @@ export default function AssessmentPage() {
                     <Button
                       key={v}
                       variant={selected === v ? "default" : "secondary"}
+                      className="transition-ui"
                       onClick={() => saveAnswer(question.id, v)}
                       disabled={save.isPending || isCompleted}
                     >
@@ -161,19 +150,23 @@ export default function AssessmentPage() {
         </p>
       )}
 
-      <div className="mt-6 flex items-center justify-between">
-        <Button
-          variant="secondary"
-          onClick={() => setPage((p) => Math.max(p - 1, 0))}
-          disabled={currentPage === 0}
-        >
-          Back
-        </Button>
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="secondary"
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={currentPage === 0}
+          >
+            Back
+          </Button>
+          {!isCompleted ? (
+            <Button variant="secondary" onClick={() => router.push("/dashboard")}>
+              Save and exit
+            </Button>
+          ) : null}
+        </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="secondary" onClick={() => setPage(firstUnansweredPage)}>
-            Jump to first unanswered
-          </Button>
           {isLastPage ? (
             <Button
               onClick={() => complete.mutate()}
@@ -193,8 +186,11 @@ export default function AssessmentPage() {
       </div>
 
       <p className="mt-3 text-xs text-muted-foreground">
-        {save.isPending ? "Saving…" : "Selections are saved automatically."}
+        {save.isPending
+          ? "Saving…"
+          : "Selections are saved automatically. Use Save and exit to continue later from the dashboard."}
       </p>
-    </div>
+      </div>
+    </AppShell>
   );
 }

@@ -38,6 +38,11 @@ This file is meant to stay **continuously updated** as we progress.
   - Frontend lint passing; build passing
 - **Admin visibility for CSV source files**:
   - Added a custom admin page to view/preview/download CSVs from `/data`
+- **UI refresh (light clinical theme)**:
+  - Light calm palette, Elms Sans headings + Source Sans 3 body
+  - App shell (top nav, user menu, sign out)
+  - Split-screen auth layout (login/signup/forgot/reset)
+  - Login background image path documented under `frontend/public/images/`
 
 ## Still to do
 
@@ -79,10 +84,9 @@ This file is meant to stay **continuously updated** as we progress.
   - Better manager views (assigned respondents + progress summaries).
 - **Assessment UX polish (frontend)**:
   - Better navigation (question index, “unanswered” indicator), and clearer autosave state.
-  - Prevent completion until all questions answered with clearer guidance.
+  - Likert labels (Strongly disagree → Strongly agree) instead of numbers only.
 - **Results UX polish (frontend)**:
-  - Add threshold comparison visuals per-domain (chart overlay / reference lines per bar).
-  - Switch results chart to a spider/radar diagram (domain scores vs thresholds).
+  - Refine radar chart styling for light theme; insight card typography.
   - Improve copy to match “insightful, not clinical” tone.
 - **Deployment readiness**:
   - Document Render setup (backend + frontend env vars) in repo docs (starter pack has guidance; we should mirror it here).

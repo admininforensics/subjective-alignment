@@ -86,7 +86,13 @@ export async function apiFetch<T>(
   }
   if (!res.ok) {
     const message = (() => {
-      if (typeof data === "string" && data.trim()) return data;
+      if (typeof data === "string" && data.trim()) {
+        const trimmed = data.trimStart();
+        if (trimmed.startsWith("<!DOCTYPE") || trimmed.startsWith("<html")) {
+          return "The server returned an unexpected error. Check that the API is running.";
+        }
+        return data;
+      }
       if (typeof data !== "object" || data === null) return "Request failed";
 
       const obj = data as Record<string, unknown>;

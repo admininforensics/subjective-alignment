@@ -10,6 +10,7 @@ from apps.accounts.models import User, UserRole
 from apps.assessments.models import Assessment
 from apps.assessments.models import Question
 from apps.licensing.models import AssessmentSession, Licence, LicenceStatus, SessionStatus
+from apps.organisations.models import Organisation
 from apps.results.models import Response
 from apps.rules.services import evaluate_rules
 from apps.scoring.services import effective_score, score_session
@@ -31,10 +32,24 @@ def _assigned_licences_for_user(user: User):
     )
 
 
+DEV_ORGANISATION_NAME = "Local Development"
+
+
+def _ensure_dev_organisation(user: User) -> None:
+    """Attach a default org in local dev when licence checks are skipped."""
+    if user.organisation_id is not None:
+        return
+    org, _ = Organisation.objects.get_or_create(name=DEV_ORGANISATION_NAME)
+    user.organisation = org
+    user.save(update_fields=["organisation_id"])
+
+
 def ensure_testing_licence(user: User) -> None:
     """When SKIP_LICENCE_REQUIREMENT is on, grant a usable licence without activation."""
     if not settings.SKIP_LICENCE_REQUIREMENT:
         return
+
+    _ensure_dev_organisation(user)
 
     has_usable = _assigned_licences_for_user(user).exclude(status=LicenceStatus.CONSUMED).exists()
     if not has_usable:
@@ -186,6 +201,47 @@ def complete_session(*, session: AssessmentSession) -> dict:
     licence.save(update_fields=["status", "consumed_at"])
 
     return {"domain_results_by_name": domain_results_by_name, "triggered_flags": flags}
+
+
+@transaction.atomic
+def delete_latest_completed_session(*, user: User) -> None:
+    session = (
+        AssessmentSession.objects.select_for_update()
+        .filter(respondent=user, status=SessionStatus.COMPLETED)
+        .order_by("-completed_at")
+        .first()
+    )
+    if not session:
+        raise SessionError("No completed assessment to delete")
+
+    licence = Licence.objects.select_for_update().get(id=session.licence_id)
+    session.delete()
+    licence.delete()
+
+
+@transaction.atomic
+def restart_in_progress_session(*, user: User) -> AssessmentSession:
+    ensure_testing_licence(user)
+    licence = (
+        Licence.objects.select_for_update()
+        .filter(assigned_to=user)
+        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED, LicenceStatus.CONSUMED])
+        .order_by("-purchased_at")
+        .first()
+    )
+    if not licence:
+        raise SessionError("No active assessment to restart")
+
+    session = getattr(licence, "session", None)
+    if session:
+        if session.status in {SessionStatus.COMPLETED, SessionStatus.LOCKED}:
+            raise SessionError("Completed assessments cannot be restarted. Delete the previous one first.")
+        session.delete()
+
+    licence.status = LicenceStatus.ASSIGNED
+    licence.consumed_at = None
+    licence.save(update_fields=["status", "consumed_at"])
+    return start_session_for_user(user)
 
 
 def can_view_session(*, actor: User, session: AssessmentSession) -> bool:

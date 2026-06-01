@@ -1,8 +1,9 @@
 "use client";
 
-import AdminClient from "./AdminClient";
+import dynamic from "next/dynamic";
+
+const AdminView = dynamic(() => import("./AdminView"), { ssr: false });
 
 export default function AdminPage() {
-  return <AdminClient />;
+  return <AdminView />;
 }
-

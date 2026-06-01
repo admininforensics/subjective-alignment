@@ -1,5 +1,6 @@
 "use client";
 
+import { AppShell } from "@/components/layout/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
@@ -17,8 +18,6 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
-
-import { Button } from "@/components/ui/button";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -58,20 +57,11 @@ export default function ResultsPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-10">
-      <div className="flex items-start justify-between gap-6">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Results</h1>
-          <p className="text-sm text-muted-foreground">
-            Completed: {results.data.session.completed_at ?? "—"}
-          </p>
-        </div>
-        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
-          Back to dashboard
-        </Button>
-      </div>
-
-      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+    <AppShell
+      title="Results"
+      description={`Completed ${results.data.session.completed_at ? new Date(results.data.session.completed_at).toLocaleString() : "—"}`}
+    >
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Domain scores</CardTitle>
@@ -146,7 +136,7 @@ export default function ResultsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </AppShell>
   );
 }
 

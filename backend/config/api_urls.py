@@ -13,7 +13,9 @@ from apps.licensing.views import (
     AssignLicenceView,
     CompleteSessionView,
     DashboardView,
+    DeleteCompletedSessionView,
     PurchaseLicenceView,
+    RestartSessionView,
     SaveResponseView,
     SessionDetailView,
     StartSessionView,
@@ -34,6 +36,8 @@ urlpatterns = [
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("assessment/current/", CurrentAssessmentView.as_view(), name="current-assessment"),
     path("sessions/start/", StartSessionView.as_view(), name="start-session"),
+    path("sessions/restart/", RestartSessionView.as_view(), name="restart-session"),
+    path("sessions/completed/", DeleteCompletedSessionView.as_view(), name="delete-completed-session"),
     path("sessions/<int:session_id>/", SessionDetailView.as_view(), name="session-detail"),
     path(
         "sessions/<int:session_id>/responses/",
