@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
@@ -22,6 +23,24 @@ class SessionError(ValueError):
     pass
 
 
+def _assigned_licences_for_user(user: User):
+    return (
+        Licence.objects.filter(assigned_to=user)
+        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED])
+        .order_by("-purchased_at")
+    )
+
+
+def ensure_testing_licence(user: User) -> None:
+    """When SKIP_LICENCE_REQUIREMENT is on, grant a usable licence without activation."""
+    if not settings.SKIP_LICENCE_REQUIREMENT:
+        return
+
+    has_usable = _assigned_licences_for_user(user).exclude(status=LicenceStatus.CONSUMED).exists()
+    if not has_usable:
+        purchase_licence_for_user(user=user)
+
+
 @dataclass(frozen=True)
 class DashboardInfo:
     assigned_licence: Licence | None
@@ -31,12 +50,8 @@ class DashboardInfo:
 
 
 def get_dashboard_info(user: User) -> DashboardInfo:
-    assigned_licence = (
-        Licence.objects.filter(assigned_to=user)
-        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED])
-        .order_by("-purchased_at")
-        .first()
-    )
+    ensure_testing_licence(user)
+    assigned_licence = _assigned_licences_for_user(user).first()
 
     session = None
     progress = None
@@ -89,6 +104,7 @@ def purchase_licence_for_user(*, user: User) -> Licence:
 
 @transaction.atomic
 def start_session_for_user(user: User) -> AssessmentSession:
+    ensure_testing_licence(user)
     licence = (
         Licence.objects.select_for_update()
         .filter(assigned_to=user)

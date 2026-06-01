@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { apiFetch } from "@/lib/api";
 import { clearAuth, getAccessToken, getUser } from "@/lib/auth";
+import { skipLicenceCheck } from "@/lib/features";
 import type { DashboardResponse } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -75,7 +76,7 @@ export default function DashboardClient() {
   if (!hydrated) return null;
   if (!token) return null;
 
-  const hasLicence = Boolean(dashboard.data?.assigned_licence);
+  const hasLicence = skipLicenceCheck || Boolean(dashboard.data?.assigned_licence);
   const canGenerateReport = Boolean(dashboard.data?.latest_result?.session_id);
 
   return (
@@ -108,7 +109,7 @@ export default function DashboardClient() {
             <CardTitle>Assessment</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {!hasLicence ? (
+            {!skipLicenceCheck && !dashboard.data?.assigned_licence ? (
               <div className="grid gap-2">
                 <p className="text-sm text-muted-foreground">You don’t have an active licence yet.</p>
                 <div className="grid gap-2">
@@ -148,7 +149,7 @@ export default function DashboardClient() {
               <Button onClick={goToAssessment} disabled={start.isPending || !hasLicence}>
                 {start.isPending ? "Starting…" : dashboard.data?.session ? "Continue" : "Start"}
               </Button>
-              {!hasLicence ? (
+              {!skipLicenceCheck && !dashboard.data?.assigned_licence ? (
                 <p className="text-sm text-muted-foreground">Activate a licence to start the assessment.</p>
               ) : null}
               {start.error ? <p className="text-sm text-destructive">{start.error.message}</p> : null}

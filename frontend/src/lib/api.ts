@@ -3,7 +3,13 @@ import { clearAuth, getAccessToken, getRefreshToken, setAccessToken } from "@/li
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:8000/api";
 
-const AUTH_PATHS = ["/auth/login/", "/auth/signup/", "/auth/refresh/"] as const;
+const AUTH_PATHS = [
+  "/auth/login/",
+  "/auth/signup/",
+  "/auth/refresh/",
+  "/auth/password-reset/",
+  "/auth/password-reset/confirm/",
+] as const;
 
 function isAuthPath(path: string): boolean {
   return AUTH_PATHS.some((p) => path === p || path.startsWith(p));

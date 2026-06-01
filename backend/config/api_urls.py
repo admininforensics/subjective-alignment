@@ -1,7 +1,12 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from apps.accounts.views import LoginView, SignupView
+from apps.accounts.views import (
+    LoginView,
+    PasswordResetConfirmView,
+    PasswordResetRequestView,
+    SignupView,
+)
 from apps.assessments.views import CurrentAssessmentView
 from apps.licensing.views import (
     ActivateLicenceView,
@@ -20,6 +25,12 @@ urlpatterns = [
     path("auth/login/", LoginView.as_view(), name="login"),
     path("auth/signup/", SignupView.as_view(), name="signup"),
     path("auth/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
+    path("auth/password-reset/", PasswordResetRequestView.as_view(), name="password-reset"),
+    path(
+        "auth/password-reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="password-reset-confirm",
+    ),
     path("dashboard/", DashboardView.as_view(), name="dashboard"),
     path("assessment/current/", CurrentAssessmentView.as_view(), name="current-assessment"),
     path("sessions/start/", StartSessionView.as_view(), name="start-session"),

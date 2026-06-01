@@ -1,3 +1,5 @@
+from django.core.mail import BadHeaderError
+
 from rest_framework import serializers
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -5,9 +7,14 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from apps.accounts.password_reset import reset_password, send_password_reset_email
 from apps.accounts.serializers import UserSerializer
 from apps.accounts.models import User, UserRole
 from apps.organisations.models import Organisation
+
+PASSWORD_RESET_SENT_MESSAGE = (
+    "If an account exists for that email, you will receive a reset link shortly."
+)
 
 
 class LoginSerializer(TokenObtainPairSerializer):
@@ -73,3 +80,53 @@ class SignupView(APIView):
             },
             status=201,
         )
+
+
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        payload = PasswordResetRequestSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+
+        email = payload.validated_data["email"].lower().strip()
+        user = User.objects.filter(email=email).first()
+        if user:
+            try:
+                send_password_reset_email(user)
+            except BadHeaderError:
+                return Response(
+                    {"detail": "Could not send email. Try again later."},
+                    status=500,
+                )
+
+        return Response({"detail": PASSWORD_RESET_SENT_MESSAGE})
+
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    uid = serializers.CharField()
+    token = serializers.CharField()
+    password = serializers.CharField(min_length=6)
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        payload = PasswordResetConfirmSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+
+        try:
+            reset_password(
+                payload.validated_data["uid"],
+                payload.validated_data["token"],
+                payload.validated_data["password"],
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=400)
+
+        return Response({"detail": "Password updated. You can sign in now."})

@@ -21,6 +21,9 @@ services:
         generateValue: true
       - key: ALLOWED_HOSTS
         value: ".onrender.com"
+      - key: FRONTEND_URL
+        value: "https://subjective-alignment-frontend.onrender.com"
+      # Configure SMTP for real password-reset emails (e.g. EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD).
       - key: SECURE_SSL_REDIRECT
         value: "True"
       - key: SESSION_COOKIE_SECURE

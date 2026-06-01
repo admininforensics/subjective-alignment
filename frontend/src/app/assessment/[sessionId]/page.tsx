@@ -10,12 +10,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState, useSyncExternalStore } from "react";
 
+const QUESTIONS_PER_PAGE = 5;
+
 export default function AssessmentPage() {
   const router = useRouter();
   const params = useParams<{ sessionId: string }>();
   const sessionId = Number(params.sessionId);
   const qc = useQueryClient();
-  const [cursor, setCursor] = useState<number>(0);
+  const [page, setPage] = useState<number>(0);
 
   const hydrated = useSyncExternalStore(
     () => () => {},
@@ -39,16 +41,21 @@ export default function AssessmentPage() {
 
   const questions = session.data?.questions ?? [];
   const questionCount = questions.length;
-  const currentIdx =
-    session.isSuccess && questionCount > 0
-      ? Math.min(Math.max(cursor, 0), questionCount - 1)
-      : 0;
-  const q = questions[currentIdx];
+  const pageCount = Math.max(1, Math.ceil(questionCount / QUESTIONS_PER_PAGE));
+  const currentPage =
+    session.isSuccess && questionCount > 0 ? Math.min(Math.max(page, 0), pageCount - 1) : 0;
+  const pageStart = currentPage * QUESTIONS_PER_PAGE;
+  const pageQuestions = questions.slice(pageStart, pageStart + QUESTIONS_PER_PAGE);
+  const pageEnd = pageStart + pageQuestions.length;
 
-  const firstUnansweredIdx = useMemo(() => {
+  const firstUnansweredPage = useMemo(() => {
     const idx = questions.findIndex((question) => !responsesByQuestion.has(question.id));
-    return idx === -1 ? 0 : idx;
+    return idx === -1 ? 0 : Math.floor(idx / QUESTIONS_PER_PAGE);
   }, [questions, responsesByQuestion]);
+
+  const pageAllAnswered = pageQuestions.every((question) => responsesByQuestion.has(question.id));
+  const allAnswered =
+    questionCount > 0 && questions.every((question) => responsesByQuestion.has(question.id));
 
   const save = useMutation({
     mutationFn: async (payload: { question_id: number; raw_likert_score: number }) =>
@@ -66,27 +73,9 @@ export default function AssessmentPage() {
     onSuccess: () => router.replace(`/results/${sessionId}`),
   });
 
-  const answerAndAdvance = (raw_likert_score: number) => {
-    if (!q || save.isPending || session.data?.session.status === "COMPLETED") return;
-
-    const isLastQuestion = currentIdx === questionCount - 1;
-    const alreadyAnswered = responsesByQuestion.has(q.id);
-    const answeredCountAfter = responsesByQuestion.size + (alreadyAnswered ? 0 : 1);
-    const willBeAllAnswered = answeredCountAfter === questionCount;
-
-    save.mutate(
-      { question_id: q.id, raw_likert_score },
-      {
-        onSuccess: async () => {
-          await qc.invalidateQueries({ queryKey: ["session", sessionId] });
-          if (isLastQuestion && willBeAllAnswered) {
-            complete.mutate();
-            return;
-          }
-          setCursor((i) => Math.min(i + 1, questionCount - 1));
-        },
-      }
-    );
+  const saveAnswer = (question_id: number, raw_likert_score: number) => {
+    if (save.isPending || session.data?.session.status === "COMPLETED") return;
+    save.mutate({ question_id, raw_likert_score });
   };
 
   if (!hydrated) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
@@ -100,7 +89,7 @@ export default function AssessmentPage() {
   if (session.isLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
   if (session.error) return <p className="p-6 text-sm text-destructive">{session.error.message}</p>;
   if (!session.data) return <p className="p-6 text-sm text-muted-foreground">No session data.</p>;
-  if (!q) {
+  if (questionCount === 0) {
     return (
       <p className="p-6 text-sm text-destructive">
         This assessment has no questions yet. Ask an admin to run the data seed on the server.
@@ -108,8 +97,9 @@ export default function AssessmentPage() {
     );
   }
 
-  const selected = responsesByQuestion.get(q.id) ?? null;
   const progress = (session.data.session.progress ?? 0) * 100;
+  const isCompleted = session.data.session.status === "COMPLETED";
+  const isLastPage = currentPage === pageCount - 1;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
@@ -117,7 +107,7 @@ export default function AssessmentPage() {
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Assessment</h1>
           <p className="text-sm text-muted-foreground">
-            {q.area} · {q.subarea}
+            Page {currentPage + 1} of {pageCount}
           </p>
         </div>
         <Button variant="secondary" onClick={() => router.push("/dashboard")}>
@@ -128,64 +118,83 @@ export default function AssessmentPage() {
       <div className="mt-6 grid gap-2">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
-            Question {currentIdx + 1} of {questionCount}
+            Questions {pageStart + 1}–{pageEnd} of {questionCount}
           </span>
           <span className="font-medium">{Math.round(progress)}%</span>
         </div>
         <Progress value={progress} />
       </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle className="text-base font-medium">{q.text}</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          <div className="grid grid-cols-5 gap-2">
-            {[1, 2, 3, 4, 5].map((v) => (
-              <Button
-                key={v}
-                variant={selected === v ? "default" : "secondary"}
-                onClick={() => answerAndAdvance(v)}
-                disabled={save.isPending || session.data.session.status === "COMPLETED"}
-              >
-                {v}
-              </Button>
-            ))}
-          </div>
+      <div className="mt-6 grid gap-4">
+        {pageQuestions.map((question, i) => {
+          const selected = responsesByQuestion.get(question.id) ?? null;
+          return (
+            <Card key={question.id}>
+              <CardHeader className="pb-3">
+                <p className="text-xs text-muted-foreground">
+                  Question {pageStart + i + 1} · {question.area} · {question.subarea}
+                </p>
+                <CardTitle className="text-base font-medium">{question.text}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-5 gap-2">
+                  {[1, 2, 3, 4, 5].map((v) => (
+                    <Button
+                      key={v}
+                      variant={selected === v ? "default" : "secondary"}
+                      onClick={() => saveAnswer(question.id, v)}
+                      disabled={save.isPending || isCompleted}
+                    >
+                      {v}
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
 
-          <div className="flex items-center justify-between">
+      {!pageAllAnswered && !isCompleted && (
+        <p className="mt-4 text-sm text-muted-foreground">
+          Answer every question on this page to continue.
+        </p>
+      )}
+
+      <div className="mt-6 flex items-center justify-between">
+        <Button
+          variant="secondary"
+          onClick={() => setPage((p) => Math.max(p - 1, 0))}
+          disabled={currentPage === 0}
+        >
+          Back
+        </Button>
+
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => setPage(firstUnansweredPage)}>
+            Jump to first unanswered
+          </Button>
+          {isLastPage ? (
             <Button
-              variant="secondary"
-              onClick={() => setCursor((i) => Math.max(i - 1, 0))}
-              disabled={currentIdx === 0}
+              onClick={() => complete.mutate()}
+              disabled={complete.isPending || !allAnswered || isCompleted}
             >
-              Back
+              Complete
             </Button>
+          ) : (
+            <Button
+              onClick={() => setPage((p) => Math.min(p + 1, pageCount - 1))}
+              disabled={!pageAllAnswered}
+            >
+              Next
+            </Button>
+          )}
+        </div>
+      </div>
 
-            <div className="flex items-center gap-2">
-              <Button variant="secondary" onClick={() => setCursor(firstUnansweredIdx)}>
-                Jump to first unanswered
-              </Button>
-              {currentIdx === questionCount - 1 ? (
-                <Button
-                  onClick={() => complete.mutate()}
-                  disabled={complete.isPending || session.data.responses.length !== questionCount}
-                >
-                  Complete
-                </Button>
-              ) : (
-                <Button onClick={() => setCursor((i) => Math.min(i + 1, questionCount - 1))}>
-                  Next
-                </Button>
-              )}
-            </div>
-          </div>
-
-          <p className="text-xs text-muted-foreground">
-            {save.isPending ? "Saving…" : "Autosave on selection."}
-          </p>
-        </CardContent>
-      </Card>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {save.isPending ? "Saving…" : "Selections are saved automatically."}
+      </p>
     </div>
   );
 }
