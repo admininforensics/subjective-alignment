@@ -23,6 +23,10 @@ class LicenceAdmin(admin.ModelAdmin):
     list_filter = ["status", "organisation"]
     search_fields = ["code", "assigned_to__email", "organisation__name"]
     actions = [generate_licence_codes]
+    readonly_fields = ["assigned_at", "consumed_at", "purchased_at"]
+
+    def get_changeform_initial_data(self, request):
+        return {"status": "AVAILABLE"}
 
 
 @admin.register(AssessmentSession)

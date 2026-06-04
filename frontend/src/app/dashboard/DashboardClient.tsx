@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
-import { skipLicenceCheck } from "@/lib/features";
 import type { DashboardResponse } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
@@ -63,10 +62,9 @@ export default function DashboardClient() {
     mutationFn: async () =>
       apiFetch<{ activated: boolean; licence: { id: number; status: string } }>("/licences/activate/", {
         method: "POST",
-        body: JSON.stringify({ code: licenceCode }),
+        body: JSON.stringify({ code: licenceCode.trim() }),
       }),
     onSuccess: async () => {
-      setLicenceCode("");
       await qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
@@ -91,7 +89,8 @@ export default function DashboardClient() {
   if (!hydrated) return null;
   if (!token) return null;
 
-  const hasLicence = skipLicenceCheck || Boolean(dashboard.data?.assigned_licence);
+  const hasLicence = Boolean(dashboard.data?.assigned_licence);
+  const licenceConsumed = dashboard.data?.assigned_licence?.status === "CONSUMED";
   const canGenerateReport = Boolean(dashboard.data?.latest_result?.session_id);
   const sessionStatus = dashboard.data?.session?.status;
   const hasInProgressSession =
@@ -113,25 +112,42 @@ export default function DashboardClient() {
             <CardTitle>Assessment</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {!skipLicenceCheck && !dashboard.data?.assigned_licence ? (
+            <div className="grid gap-3 rounded-lg border border-border bg-muted/30 p-4">
+              <div>
+                <h3 className="text-sm font-medium">Licence</h3>
+                <p className="text-sm text-muted-foreground">
+                  {hasLicence
+                    ? licenceConsumed
+                      ? "Your licence is still assigned. Delete the previous assessment below to start a new one with the same licence."
+                      : "Your licence is active. You can start or continue the assessment below."
+                    : "Enter the licence code you received before starting the assessment."}
+                </p>
+              </div>
               <div className="grid gap-2">
-                <p className="text-sm text-muted-foreground">You don’t have an active licence yet.</p>
-                <div className="grid gap-2">
-                  <Label htmlFor="licenceCode">Licence code</Label>
-                  <Input
-                    id="licenceCode"
-                    value={licenceCode}
-                    onChange={(e) => setLicenceCode(e.target.value)}
-                    placeholder="Enter your licence code"
-                    autoComplete="off"
-                  />
-                </div>
-                <Button onClick={() => activate.mutate()} disabled={activate.isPending || !licenceCode.trim()}>
+                <Label htmlFor="licenceCode">Licence code</Label>
+                <Input
+                  id="licenceCode"
+                  value={licenceCode}
+                  onChange={(e) => setLicenceCode(e.target.value)}
+                  placeholder="Enter your licence code"
+                  autoComplete="off"
+                  disabled={hasLicence || activate.isPending}
+                />
+              </div>
+              {hasLicence ? (
+                <p className="text-sm text-muted-foreground">
+                  Status: {dashboard.data?.assigned_licence?.status ?? "active"}
+                </p>
+              ) : (
+                <Button
+                  onClick={() => activate.mutate()}
+                  disabled={activate.isPending || !licenceCode.trim()}
+                >
                   {activate.isPending ? "Activating…" : "Activate licence"}
                 </Button>
-                {activate.error ? <p className="text-sm text-destructive">{activate.error.message}</p> : null}
-              </div>
-            ) : null}
+              )}
+              {activate.error ? <p className="text-sm text-destructive">{activate.error.message}</p> : null}
+            </div>
 
             <div className="grid gap-2">
               <div className="flex items-center justify-between text-sm">
@@ -189,7 +205,7 @@ export default function DashboardClient() {
                   {deleteCompleted.isPending ? "Deleting…" : "Delete previous assessment"}
                 </Button>
               ) : null}
-              {!skipLicenceCheck && !dashboard.data?.assigned_licence ? (
+              {!hasLicence ? (
                 <p className="text-sm text-muted-foreground">Activate a licence to start the assessment.</p>
               ) : null}
               {start.error ? <p className="text-sm text-destructive">{start.error.message}</p> : null}
@@ -223,4 +239,3 @@ export default function DashboardClient() {
     </>
   );
 }
-

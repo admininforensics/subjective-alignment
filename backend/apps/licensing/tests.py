@@ -1,4 +1,5 @@
 from django.test import TestCase, override_settings
+from django.utils import timezone
 
 from apps.accounts.models import User, UserRole
 from apps.assessments.models import Assessment
@@ -40,6 +41,19 @@ class SkipLicenceRequirementTests(TestCase):
         info = get_dashboard_info(self.user)
         self.assertIsNotNone(info.assigned_licence)
 
+    def test_ensure_testing_licence_assigns_dev_org_when_missing(self):
+        user = User.objects.create_user(
+            email="solo@example.com",
+            username="solo",
+            password="pw",
+            role=UserRole.RESPONDENT,
+        )
+        self.assertIsNone(user.organisation_id)
+        ensure_testing_licence(user)
+        user.refresh_from_db()
+        self.assertIsNotNone(user.organisation_id)
+        self.assertTrue(Licence.objects.filter(assigned_to=user).exists())
+
 
 class SessionManagementTests(TestCase):
     def setUp(self):
@@ -52,6 +66,12 @@ class SessionManagementTests(TestCase):
             role=UserRole.RESPONDENT,
         )
         self.assessment = Assessment.objects.create(name="Test Assessment", version="1.0", is_active=True)
+        self.licence = Licence.objects.create(
+            organisation=self.org,
+            assessment=self.assessment,
+            assigned_to=self.user,
+            status=LicenceStatus.ASSIGNED,
+        )
         area = Area.objects.create(name="A")
         sub = SubArea.objects.create(area=area, name="S")
         self.question = Question.objects.create(
@@ -72,25 +92,20 @@ class SessionManagementTests(TestCase):
         self.assertFalse(Response.objects.filter(session_id=session.id).exists())
         self.assertEqual(Response.objects.filter(session=new_session).count(), 0)
 
-    def test_delete_latest_completed_removes_session(self):
+    def test_delete_latest_completed_removes_session_but_keeps_licence(self):
         session = start_session_for_user(self.user)
         save_response(session=session, question=self.question, raw_likert_score=4)
         session.status = SessionStatus.COMPLETED
-        session.save(update_fields=["status"])
+        session.completed_at = timezone.now()
+        session.save(update_fields=["status", "completed_at"])
+        licence = Licence.objects.get(id=session.licence_id)
+        licence.status = LicenceStatus.CONSUMED
+        licence.consumed_at = timezone.now()
+        licence.save(update_fields=["status", "consumed_at"])
 
         delete_latest_completed_session(user=self.user)
         self.assertFalse(AssessmentSession.objects.filter(id=session.id).exists())
-        self.assertFalse(Licence.objects.filter(assigned_to=self.user).exists())
-
-    def test_ensure_testing_licence_assigns_dev_org_when_missing(self):
-        user = User.objects.create_user(
-            email="solo@example.com",
-            username="solo",
-            password="pw",
-            role=UserRole.RESPONDENT,
-        )
-        self.assertIsNone(user.organisation_id)
-        ensure_testing_licence(user)
-        user.refresh_from_db()
-        self.assertIsNotNone(user.organisation_id)
-        self.assertTrue(Licence.objects.filter(assigned_to=user).exists())
+        licence.refresh_from_db()
+        self.assertEqual(licence.assigned_to_id, self.user.id)
+        self.assertEqual(licence.status, LicenceStatus.ASSIGNED)
+        self.assertIsNone(licence.consumed_at)

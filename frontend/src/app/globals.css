@@ -115,6 +115,13 @@
     font-family: var(--font-heading), var(--font-body), ui-sans-serif, system-ui, sans-serif;
     @apply tracking-tight text-foreground;
   }
+  input[data-slot="input"]:-webkit-autofill,
+  input[data-slot="input"]:-webkit-autofill:hover,
+  input[data-slot="input"]:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--card) inset !important;
+    -webkit-text-fill-color: var(--foreground) !important;
+    caret-color: var(--foreground);
+  }
 }
 
 @layer utilities {

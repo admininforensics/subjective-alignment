@@ -216,7 +216,10 @@ def delete_latest_completed_session(*, user: User) -> None:
 
     licence = Licence.objects.select_for_update().get(id=session.licence_id)
     session.delete()
-    licence.delete()
+    # Keep the licence so the user can start a new assessment (testing / retake flow).
+    licence.status = LicenceStatus.ASSIGNED
+    licence.consumed_at = None
+    licence.save(update_fields=["status", "consumed_at"])
 
 
 @transaction.atomic

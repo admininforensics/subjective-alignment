@@ -1,21 +1,15 @@
 "use client";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { clearAuth, getUser } from "@/lib/auth";
 import type { AuthUser } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useMemo, useSyncExternalStore } from "react";
+import { ReactNode, useMemo, useState, useSyncExternalStore } from "react";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -27,6 +21,10 @@ function initials(email: string) {
   return part.slice(0, 2).toUpperCase();
 }
 
+function formatRole(role: string | undefined) {
+  return role ? role.replaceAll("_", " ") : "User";
+}
+
 type AppShellProps = {
   children: ReactNode;
   title?: string;
@@ -36,6 +34,7 @@ type AppShellProps = {
 export function AppShell({ children, title, description }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const hydrated = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -86,42 +85,62 @@ export function AppShell({ children, title, description }: AppShellProps) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            {visibleNav.length > 1 ? (
+              <div className="relative sm:hidden">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open navigation menu"
+                  aria-expanded={mobileNavOpen}
+                  onClick={() => setMobileNavOpen((open) => !open)}
+                >
+                  <Menu className="h-5 w-5" />
+                </Button>
+                {mobileNavOpen ? (
+                  <>
+                    <button
+                      type="button"
+                      className="fixed inset-0 z-40 cursor-default bg-transparent"
+                      aria-label="Close navigation menu"
+                      onClick={() => setMobileNavOpen(false)}
+                    />
+                    <div className="absolute right-0 z-50 mt-1 w-44 rounded-lg border border-border bg-popover p-1 shadow-md">
+                      {visibleNav.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className="block rounded-md px-2 py-1.5 text-sm font-medium text-foreground transition-ui hover:bg-muted"
+                          onClick={() => setMobileNavOpen(false)}
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                ) : null}
+              </div>
+            ) : null}
+
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger className="inline-flex h-9 items-center gap-2 rounded-md px-2 text-sm transition-ui hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-accent text-xs font-medium text-accent-foreground">
-                        {initials(user.email)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="hidden max-w-[140px] truncate sm:inline">{user.email}</span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel className="font-normal">
-                    <p className="text-sm font-medium">{user.email}</p>
-                    <p className="text-xs text-muted-foreground">{user.role.replace("_", " ")}</p>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="sm:hidden" onClick={() => router.push("/dashboard")}>
-                    Dashboard
-                  </DropdownMenuItem>
-                  {visibleNav
-                    .filter((n) => n.href !== "/dashboard")
-                    .map((item) => (
-                      <DropdownMenuItem
-                        key={item.href}
-                        className="sm:hidden"
-                        onClick={() => router.push(item.href)}
-                      >
-                        {item.label}
-                      </DropdownMenuItem>
-                    ))}
-                  <DropdownMenuSeparator className="sm:hidden" />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <>
+                <div
+                  className="flex h-9 max-w-[200px] items-center gap-2 rounded-md px-2"
+                  title={`${user.email} · ${formatRole(user.role)}`}
+                >
+                  <Avatar className="h-8 w-8 shrink-0">
+                    <AvatarFallback className="bg-accent text-xs font-medium text-accent-foreground">
+                      {initials(user.email)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden min-w-0 truncate text-sm text-muted-foreground md:inline">
+                    {user.email}
+                  </span>
+                </div>
+                <Button type="button" variant="secondary" size="sm" onClick={signOut}>
+                  Sign out
+                </Button>
+              </>
             ) : null}
           </div>
         </div>

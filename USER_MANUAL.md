@@ -184,19 +184,29 @@ from apps.accounts.models import ManagerAssignment
 ManagerAssignment.objects.create(manager=manager, respondent=respondent)
 ```
 
+### Create a licence for a respondent (Django admin — recommended)
+
+1. Open `http://localhost:8000/admin/` → **Licences** → **Add licence**
+2. Set **Organisation**, **Assessment**, and status **AVAILABLE**
+3. Leave **Assigned to** empty (the respondent activates with the code on the dashboard)
+4. Save, select the licence, run **Generate licence codes**, and share the code with the respondent
+
 ### Create a licence for a respondent (shell)
 
 ```python
 from apps.assessments.models import Assessment
-from apps.licensing.models import Licence
+from apps.licensing.models import Licence, LicenceStatus
 
 assessment = Assessment.objects.get(name="Subjective Alignment Assessment", version="1.0")
 
 licence = Licence.objects.create(
     organisation=org,
     assessment=assessment,
+    status=LicenceStatus.AVAILABLE,
 )
 ```
+
+Respondents enter the code on the dashboard (**Activate licence**). Do not set `SKIP_LICENCE_REQUIREMENT=True` in `backend/.env` for normal use — that auto-assigns licences and skips activation.
 
 ### Assign licence to respondent (API)
 
