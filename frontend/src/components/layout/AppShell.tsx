@@ -3,13 +3,12 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { clearAuth, getUser } from "@/lib/auth";
-import type { AuthUser } from "@/lib/types";
+import { clearAuth, useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ReactNode, useMemo, useState, useSyncExternalStore } from "react";
+import { ReactNode, useState } from "react";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard" },
@@ -35,12 +34,7 @@ export function AppShell({ children, title, description }: AppShellProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const hydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
-  const user = useMemo(() => (hydrated ? getUser() : null), [hydrated]) as AuthUser | null;
+  const { accessToken, user } = useAuth();
 
   const visibleNav = NAV.filter((item) => {
     if (!("roles" in item)) return true;
@@ -122,7 +116,7 @@ export function AppShell({ children, title, description }: AppShellProps) {
               </div>
             ) : null}
 
-            {user ? (
+            {user && accessToken ? (
               <>
                 <div
                   className="flex h-9 max-w-[200px] items-center gap-2 rounded-md px-2"

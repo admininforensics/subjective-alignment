@@ -6,38 +6,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { apiFetch } from "@/lib/api";
-import { getAccessToken } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import type { DashboardResponse } from "@/lib/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 export default function DashboardClient() {
   const router = useRouter();
   const qc = useQueryClient();
   const [licenceCode, setLicenceCode] = useState("");
-  const hydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const { accessToken } = useAuth();
 
-  const token = useMemo(() => (hydrated ? getAccessToken() : null), [hydrated]);
   useEffect(() => {
-    if (!hydrated) return;
-    if (!token) router.replace("/login");
-  }, [hydrated, router, token]);
+    if (!accessToken) {
+      qc.removeQueries({ queryKey: ["dashboard"] });
+      router.replace("/login");
+    }
+  }, [accessToken, qc, router]);
 
   const dashboard = useQuery({
     queryKey: ["dashboard"],
     queryFn: () => apiFetch<DashboardResponse>("/dashboard/"),
-    enabled: Boolean(token),
+    enabled: Boolean(accessToken),
+    retry: false,
   });
-
-  useEffect(() => {
-    // apiFetch now attempts refresh-on-401. If we're still failing, auth was cleared.
-    if (!token) router.replace("/login");
-  }, [router, token]);
 
   const start = useMutation({
     mutationFn: async () => apiFetch<{ session_id: number }>("/sessions/start/", { method: "POST" }),
@@ -86,9 +79,23 @@ export default function DashboardClient() {
     },
   });
 
-  if (!hydrated) return null;
-  if (!token) return null;
+  const simulateComplete = useMutation({
+    mutationFn: async () =>
+      apiFetch<{ session_id: number; questions_answered: number }>("/sessions/simulate-complete/", {
+        method: "POST",
+        body: JSON.stringify({}),
+      }),
+    onSuccess: async (data) => {
+      await qc.invalidateQueries({ queryKey: ["dashboard"] });
+      router.push(`/results/${data.session_id}`);
+    },
+  });
 
+  if (!accessToken) return null;
+
+  const showSimulateButton =
+    process.env.NODE_ENV === "development" ||
+    process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === "true";
   const hasLicence = Boolean(dashboard.data?.assigned_licence);
   const licenceConsumed = dashboard.data?.assigned_licence?.status === "CONSUMED";
   const canGenerateReport = Boolean(dashboard.data?.latest_result?.session_id);
@@ -213,6 +220,9 @@ export default function DashboardClient() {
               {deleteCompleted.error ? (
                 <p className="text-sm text-destructive">{deleteCompleted.error.message}</p>
               ) : null}
+              {simulateComplete.error ? (
+                <p className="text-sm text-destructive">{simulateComplete.error.message}</p>
+              ) : null}
             </div>
           </CardContent>
         </Card>
@@ -231,6 +241,25 @@ export default function DashboardClient() {
             )}
             {!canGenerateReport ? (
               <p className="text-sm text-muted-foreground">Complete the assessment to generate your report.</p>
+            ) : null}
+            {showSimulateButton ? (
+              <Button
+                variant="outline"
+                disabled={simulateComplete.isPending}
+                onClick={() => {
+                  if (
+                    !window.confirm(
+                      "Simulate answering all 132 questions with random scores (1–5) and complete the assessment? " +
+                        "Report generation may take up to a minute."
+                    )
+                  ) {
+                    return;
+                  }
+                  simulateComplete.mutate();
+                }}
+              >
+                {simulateComplete.isPending ? "Simulating survey…" : "Simulate survey completion (dev)"}
+              </Button>
             ) : null}
             <p className="text-xs text-muted-foreground">Your responses are autosaved as you progress.</p>
           </CardContent>

@@ -18,6 +18,7 @@ from apps.licensing.views import (
     RestartSessionView,
     SaveResponseView,
     SessionDetailView,
+    SimulateSurveyCompletionView,
     StartSessionView,
 )
 from apps.organisations.views import OrganisationRespondentsView, OrganisationResultsView
@@ -37,6 +38,11 @@ urlpatterns = [
     path("assessment/current/", CurrentAssessmentView.as_view(), name="current-assessment"),
     path("sessions/start/", StartSessionView.as_view(), name="start-session"),
     path("sessions/restart/", RestartSessionView.as_view(), name="restart-session"),
+    path(
+        "sessions/simulate-complete/",
+        SimulateSurveyCompletionView.as_view(),
+        name="simulate-survey-completion",
+    ),
     path("sessions/completed/", DeleteCompletedSessionView.as_view(), name="delete-completed-session"),
     path("sessions/<int:session_id>/", SessionDetailView.as_view(), name="session-detail"),
     path(

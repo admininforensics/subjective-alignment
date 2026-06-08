@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -12,6 +13,7 @@ from apps.assessments.models import Question
 from apps.licensing.models import AssessmentSession, Licence, LicenceStatus, SessionStatus
 from apps.organisations.models import Organisation
 from apps.results.models import Response
+from apps.results.report_service import generate_report
 from apps.rules.services import evaluate_rules
 from apps.scoring.services import effective_score, score_session
 
@@ -49,11 +51,23 @@ def ensure_testing_licence(user: User) -> None:
     if not settings.SKIP_LICENCE_REQUIREMENT:
         return
 
+    _ensure_dev_licence(user)
+
+
+def _ensure_dev_licence(user: User) -> None:
     _ensure_dev_organisation(user)
 
     has_usable = _assigned_licences_for_user(user).exclude(status=LicenceStatus.CONSUMED).exists()
     if not has_usable:
         purchase_licence_for_user(user=user)
+
+
+def ensure_debug_licence(user: User) -> None:
+    """When DEBUG is on, grant a usable licence for local dev tooling."""
+    if not settings.DEBUG:
+        return
+    if not _assigned_licences_for_user(user).exists():
+        _ensure_dev_licence(user)
 
 
 @dataclass(frozen=True)
@@ -189,6 +203,7 @@ def complete_session(*, session: AssessmentSession) -> dict:
 
     domain_results_by_name = score_session(session)
     flags = evaluate_rules(session)
+    generate_report(session=session)
 
     session.status = SessionStatus.COMPLETED
     session.completed_at = timezone.now()
@@ -220,6 +235,58 @@ def delete_latest_completed_session(*, user: User) -> None:
     licence.status = LicenceStatus.ASSIGNED
     licence.consumed_at = None
     licence.save(update_fields=["status", "consumed_at"])
+
+
+@transaction.atomic
+def simulate_survey_completion(*, user: User, raw_likert_score: int | None = None) -> AssessmentSession:
+    """Fill every question and complete the session. DEBUG-only helper for local testing."""
+    if not settings.DEBUG:
+        raise SessionError("Survey simulation is only available when DEBUG=True")
+
+    if raw_likert_score is not None and (raw_likert_score < 1 or raw_likert_score > 5):
+        raise SessionError("Likert score must be between 1 and 5")
+
+    ensure_debug_licence(user)
+    ensure_testing_licence(user)
+    licence = (
+        Licence.objects.select_for_update()
+        .filter(assigned_to=user)
+        .exclude(status__in=[LicenceStatus.REVOKED, LicenceStatus.EXPIRED])
+        .order_by("-purchased_at")
+        .first()
+    )
+    if not licence:
+        raise LicenceError("No assigned active licence")
+
+    if licence.status == LicenceStatus.CONSUMED:
+        delete_latest_completed_session(user=user)
+        licence.refresh_from_db()
+
+    session = start_session_for_user(user)
+    session = AssessmentSession.objects.select_for_update().get(id=session.id)
+
+    questions = list(Question.objects.filter(assessment=session.assessment).order_by("order"))
+    if not questions:
+        raise SessionError("Assessment has no questions")
+
+    Response.objects.filter(session=session).delete()
+    responses = []
+    for question in questions:
+        score = raw_likert_score if raw_likert_score is not None else random.randint(1, 5)
+        responses.append(
+            Response(
+                session=session,
+                question=question,
+                raw_likert_score=score,
+                effective_likert_score=effective_score(score, question.reverse_logic),
+            )
+        )
+    Response.objects.bulk_create(responses)
+
+    session.last_activity_at = timezone.now()
+    session.save(update_fields=["last_activity_at"])
+    complete_session(session=session)
+    return AssessmentSession.objects.get(id=session.id)
 
 
 @transaction.atomic

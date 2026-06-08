@@ -54,3 +54,14 @@ class TriggeredFlag(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["session", "rule"], name="uniq_session_rule_flag")
         ]
+
+
+class AssessmentReport(models.Model):
+    session = models.OneToOneField(
+        AssessmentSession,
+        on_delete=models.CASCADE,
+        related_name="report",
+    )
+    content = models.JSONField()
+    generated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)

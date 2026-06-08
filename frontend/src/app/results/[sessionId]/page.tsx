@@ -1,6 +1,7 @@
 "use client";
 
 import { AppShell } from "@/components/layout/AppShell";
+import { SubalWheel } from "@/components/report/SubalWheel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { apiFetch } from "@/lib/api";
 import { getAccessToken } from "@/lib/auth";
@@ -8,16 +9,12 @@ import type { ResultsResponse } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo, useSyncExternalStore } from "react";
-import {
-  Legend,
-  PolarAngleAxis,
-  PolarGrid,
-  PolarRadiusAxis,
-  Radar,
-  RadarChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+
+function levelBadgeClass(level: string) {
+  if (level === "High") return "bg-red-100 text-red-800";
+  if (level === "Moderate") return "bg-amber-100 text-amber-900";
+  return "bg-emerald-100 text-emerald-800";
+}
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -50,93 +47,176 @@ export default function ResultsPage() {
   if (results.error) return <p className="p-6 text-sm text-destructive">{results.error.message}</p>;
   if (!results.data) return <p className="p-6 text-sm text-muted-foreground">No results data.</p>;
 
-  const data = results.data.domain_results.map((d) => ({
-    domain: d.domain,
-    score: d.score,
-    threshold: d.threshold,
-  }));
+  const report = results.data.report;
 
   return (
     <AppShell
-      title="Results"
+      title="Subjective Alignment Report"
       description={`Completed ${results.data.session.completed_at ? new Date(results.data.session.completed_at).toLocaleString() : "—"}`}
     >
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>Domain scores</CardTitle>
-          </CardHeader>
-          <CardContent className="h-[420px] rounded-lg bg-muted/30 p-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={data} outerRadius="80%" margin={{ left: 16, right: 16, top: 16, bottom: 16 }}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="domain" tick={{ fontSize: 12 }} />
-                <PolarRadiusAxis angle={30} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Radar
-                  dataKey="score"
-                  name="Score"
-                  stroke="var(--chart-1)"
-                  fill="var(--chart-1)"
-                  fillOpacity={0.5}
-                  strokeWidth={2}
-                />
-                <Radar
-                  dataKey="threshold"
-                  name="Threshold"
-                  stroke="var(--chart-2)"
-                  strokeDasharray="6 4"
-                  fill="var(--chart-2)"
-                  fillOpacity={0.22}
-                  strokeWidth={1.5}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {!report ? (
+        <p className="text-sm text-muted-foreground">Report is not available for this session yet.</p>
+      ) : (
+        <div className="grid gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>1. Welcome</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">{report.welcome}</p>
+            </CardContent>
+          </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Triggered domains</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-2">
-            {results.data.domain_results.filter((d) => d.triggered).length ? (
-              results.data.domain_results
-                .filter((d) => d.triggered)
-                .map((d) => (
-                  <div key={d.domain} className="text-sm">
-                    <span className="font-medium">{d.domain}</span>{" "}
-                    <span className="text-muted-foreground">
-                      ({Math.round(d.score)} / {Math.round(d.threshold)})
+          <Card>
+            <CardHeader>
+              <CardTitle>2. Your Overall Alignment Snapshot</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm text-muted-foreground">Overall alignment level</span>
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-medium ${levelBadgeClass(report.overall_snapshot.alignment_level)}`}
+                >
+                  {report.overall_snapshot.alignment_level}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  System state: {report.overall_snapshot.system_state}
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed">{report.overall_snapshot.main_pattern}</p>
+              {report.wheel ? <SubalWheel wheel={report.wheel} /> : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>3. Your Top 3 Areas of Strain</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {report.top_strain_areas.map((area) => (
+                <div key={area.domain} className="rounded-lg border p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-medium">
+                      {area.rank}. {area.domain}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${levelBadgeClass(area.level)}`}
+                    >
+                      {area.level}
                     </span>
                   </div>
-                ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No triggered domains.</p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Flags & insights</CardTitle>
-          </CardHeader>
-          <CardContent className="grid gap-3">
-            {results.data.flags.length ? (
-              results.data.flags.map((f) => (
-                <div key={f.flag} className="rounded-lg border p-3">
-                  <div className="text-sm font-medium">{f.flag}</div>
-                  <div className="mt-1 text-sm text-muted-foreground">{f.insight}</div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">What this means: </span>
+                    {area.what_this_means}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">No flags triggered.</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>4. Full Results Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full min-w-[520px] text-left text-sm">
+                <thead>
+                  <tr className="border-b text-muted-foreground">
+                    <th className="py-2 pr-4 font-medium">Area</th>
+                    <th className="py-2 pr-4 font-medium">Level</th>
+                    <th className="py-2 font-medium">What it reflects</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.full_results_summary.map((row) => (
+                    <tr key={row.domain} className="border-b border-border/60">
+                      <td className="py-3 pr-4 font-medium">{row.domain}</td>
+                      <td className="py-3 pr-4">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${levelBadgeClass(row.level)}`}
+                        >
+                          {row.level}
+                        </span>
+                      </td>
+                      <td className="py-3 text-muted-foreground">{row.what_it_reflects}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>5. What Your Results Suggest</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {report.what_results_suggest.split("\n\n").map((paragraph) => (
+                <p key={paragraph.slice(0, 24)} className="text-sm leading-relaxed text-muted-foreground">
+                  {paragraph}
+                </p>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>6. Recommended Focus Areas</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {report.recommended_focus_areas.map((area) => (
+                <div key={area.domain} className="rounded-lg border p-4">
+                  <div className="font-medium">
+                    Focus area {area.rank}: {area.title}
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Why this matters: </span>
+                    {area.why_this_matters}
+                  </p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>7. Suggested Next Steps</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                {report.suggested_next_steps.map((step) => (
+                  <li key={step}>{step}</li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>8. Closing Reflection</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-relaxed text-muted-foreground">{report.closing_reflection}</p>
+            </CardContent>
+          </Card>
+
+          {results.data.flags.length ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Triggered pattern insights</CardTitle>
+              </CardHeader>
+              <CardContent className="grid gap-3">
+                {results.data.flags.map((flag) => (
+                  <div key={flag.flag} className="rounded-lg border p-3">
+                    <div className="text-sm font-medium">{flag.flag}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{flag.insight}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      )}
     </AppShell>
   );
 }
-

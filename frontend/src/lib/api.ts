@@ -75,6 +75,7 @@ export async function apiFetch<T>(
       }
     }
     clearAuth();
+    throw new Error("Session expired. Please sign in again.");
   }
 
   const text = await res.text();

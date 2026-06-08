@@ -2,9 +2,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.licensing.models import AssessmentSession
+from apps.licensing.models import AssessmentSession, SessionStatus
 from apps.licensing.services import can_view_session
-from apps.results.models import DomainScoreResult, TriggeredFlag
+from apps.results.models import AssessmentReport, DomainScoreResult, TriggeredFlag
+from apps.results.report_service import generate_report
 
 
 class ResultsDetailView(APIView):
@@ -21,6 +22,10 @@ class ResultsDetailView(APIView):
             .order_by("domain__name")
         )
         flags = TriggeredFlag.objects.filter(session=session).order_by("triggered_at")
+
+        report = AssessmentReport.objects.filter(session=session).first()
+        if not report and session.status == SessionStatus.COMPLETED:
+            report = generate_report(session=session)
 
         return Response(
             {
@@ -40,5 +45,6 @@ class ResultsDetailView(APIView):
                     for r in domain_results
                 ],
                 "flags": [{"flag": f.flag, "insight": f.insight_snapshot} for f in flags],
+                "report": report.content if report else None,
             }
         )

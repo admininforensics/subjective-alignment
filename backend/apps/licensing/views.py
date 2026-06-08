@@ -14,6 +14,7 @@ from apps.licensing.serializers import (
     SessionMiniSerializer,
 )
 from apps.licensing.services import (
+    LicenceError,
     SessionError,
     complete_session,
     delete_latest_completed_session,
@@ -21,6 +22,7 @@ from apps.licensing.services import (
     purchase_licence_for_user,
     restart_in_progress_session,
     save_response,
+    simulate_survey_completion,
     start_session_for_user,
 )
 from apps.results.models import Response as ResponseModel
@@ -81,6 +83,34 @@ class DeleteCompletedSessionView(APIView):
         except SessionError as exc:
             return Response({"detail": str(exc)}, status=400)
         return Response({"deleted": True})
+
+
+class SimulateSurveyCompletionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        raw_likert_score = request.data.get("raw_likert_score")
+        if raw_likert_score is not None:
+            try:
+                raw_likert_score = int(raw_likert_score)
+            except (TypeError, ValueError):
+                return Response({"detail": "raw_likert_score must be an integer between 1 and 5"}, status=400)
+
+        try:
+            session = simulate_survey_completion(
+                user=request.user,
+                raw_likert_score=raw_likert_score,
+            )
+        except (SessionError, LicenceError) as exc:
+            return Response({"detail": str(exc)}, status=400)
+
+        return Response(
+            {
+                "session_id": session.id,
+                "status": session.status,
+                "questions_answered": Question.objects.filter(assessment=session.assessment).count(),
+            }
+        )
 
 
 class SessionDetailView(APIView):

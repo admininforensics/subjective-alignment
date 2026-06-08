@@ -195,3 +195,11 @@ SKIP_LICENCE_REQUIREMENT = os.environ.get("SKIP_LICENCE_REQUIREMENT", "False").l
     "yes",
     "on",
 }
+
+# Report narrative LLM (Sections 2 and 5).
+# REPORT_LLM_PROVIDER: openai | ollama | template (default: ollama when no OpenAI key)
+REPORT_LLM_PROVIDER = os.environ.get("REPORT_LLM_PROVIDER", "")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
+OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "mistral:latest")
