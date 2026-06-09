@@ -76,38 +76,3 @@ SUGGESTED_NEXT_STEPS = [
     "Consider whether the issue is mainly personal, relational, structural, or organisational.",
     "Decide what one small shift would improve alignment in the next month.",
 ]
-
-FOCUS_AREA_TEMPLATES = {
-    "Burnout Risk": {
-        "title": "Restore Energy",
-        "why": "Sustained demand without adequate recovery can gradually erode engagement and resilience.",
-    },
-    "Authenticity Strain": {
-        "title": "Reduce Authenticity Strain",
-        "why": "Ongoing adaptation to fit the environment can create distance between how you operate and how you feel expected to show up.",
-    },
-    "Suppressed Influence": {
-        "title": "Increase Influence",
-        "why": "When insight does not translate into impact, effort can feel unrewarded and motivation may decline.",
-    },
-    "Internal Contradiction": {
-        "title": "Clarify Internal Priorities",
-        "why": "Competing internal drivers can make decisions feel harder and reduce a sense of direction.",
-    },
-    "Structural Misfit": {
-        "title": "Improve Role Fit",
-        "why": "A mismatch between your natural way of working and the structure of the role can create persistent friction.",
-    },
-    "Old Wounds New Systems": {
-        "title": "Recognise Historical Influences",
-        "why": "Past experiences can shape present reactions in ways that are not always immediately visible.",
-    },
-    "Emotional Containment": {
-        "title": "Create Space for Emotional Processing",
-        "why": "Carrying pressure without adequate release can increase strain over time.",
-    },
-    "Values Misalignment": {
-        "title": "Reconnect with What Matters",
-        "why": "When daily work diverges from personal meaning, motivation and satisfaction can erode gradually.",
-    },
-}

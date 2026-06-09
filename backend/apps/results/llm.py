@@ -8,6 +8,8 @@ import os
 import urllib.error
 import urllib.request
 
+from apps.results.focus_areas import FOCUS_TEMPLATES
+
 logger = logging.getLogger(__name__)
 
 PROVIDER_OPENAI = "openai"
@@ -218,6 +220,84 @@ def generate_overall_snapshot(variables: dict) -> tuple[str, str]:
     if llm_text:
         return llm_text, provider
     return _template_overall_snapshot(variables), PROVIDER_TEMPLATE
+
+
+def _parse_focus_areas_json(llm_text: str, expected_count: int) -> list[dict] | None:
+    text = llm_text.strip()
+    if text.startswith("```"):
+        text = text.split("```", 2)[1]
+        if text.startswith("json"):
+            text = text[4:]
+        text = text.rsplit("```", 1)[0].strip()
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError:
+        return None
+    if not isinstance(data, list):
+        return None
+    parsed = []
+    for item in data[:expected_count]:
+        if not isinstance(item, dict):
+            return None
+        why = item.get("why_this_matters", "").strip()
+        question = item.get("reflective_question", "").strip()
+        if not why or not question:
+            return None
+        parsed.append({"why_this_matters": why, "reflective_question": question})
+    return parsed if len(parsed) == expected_count else None
+
+
+def _template_focus_areas(section6_context: dict) -> list[dict]:
+    areas = []
+    for candidate in section6_context.get("candidates", []):
+        template = FOCUS_TEMPLATES.get(candidate["title"], FOCUS_TEMPLATES["Maintaining Alignment"])
+        areas.append(
+            {
+                "title": candidate["title"],
+                "theme": candidate["theme"],
+                "why_this_matters": template["why_this_matters"],
+                "reflective_question": template["reflective_question"],
+            }
+        )
+    return areas
+
+
+def generate_focus_areas(section6_context: dict) -> tuple[list[dict], str]:
+    candidates = section6_context.get("candidates", [])
+    if not candidates:
+        return [], PROVIDER_TEMPLATE
+
+    system_prompt = (
+        "You write reflective focus areas for a workplace alignment report. "
+        "This is a reflection layer, not advice or action planning. "
+        "Never diagnose. Never prescribe solutions. Never mention scores or numbers. "
+        "Return valid JSON only — an array of objects with why_this_matters and reflective_question."
+    )
+    user_prompt = (
+        "Write Section 6 (Recommended Focus Areas) for a Subjective Alignment report.\n\n"
+        f"Context JSON:\n{json.dumps(section6_context, indent=2)}\n\n"
+        "For each candidate, write:\n"
+        "- why_this_matters: 2-3 sentences grounded in the candidate's theme and contributing themes\n"
+        "- reflective_question: one open, non-prescriptive question\n\n"
+        f"Return exactly {len(candidates)} items as JSON array in the same order:\n"
+        '[{"why_this_matters": "...", "reflective_question": "..."}]'
+    )
+
+    llm_text, provider = _call_llm(system_prompt=system_prompt, user_prompt=user_prompt)
+    if llm_text:
+        parsed = _parse_focus_areas_json(llm_text, len(candidates))
+        if parsed:
+            return [
+                {
+                    "title": candidate["title"],
+                    "theme": candidate["theme"],
+                    **content,
+                }
+                for candidate, content in zip(candidates, parsed)
+            ], provider
+
+    template_areas = _template_focus_areas(section6_context)
+    return template_areas, PROVIDER_TEMPLATE
 
 
 def generate_what_results_suggest(section5_context: dict) -> tuple[str, str]:

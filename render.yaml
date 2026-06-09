@@ -23,6 +23,10 @@ services:
         value: ".onrender.com"
       - key: FRONTEND_URL
         value: "https://subjective-alignment-frontend.onrender.com"
+      - key: CORS_ALLOWED_ORIGINS
+        value: "https://subjective-alignment-frontend.onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://subjective-alignment-frontend.onrender.com"
       # Configure SMTP for real password-reset emails (e.g. EMAIL_HOST, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD).
       - key: SECURE_SSL_REDIRECT
         value: "True"
@@ -48,7 +52,3 @@ services:
       # https://subjective-alignment-backend.onrender.com/api
       - key: NEXT_PUBLIC_API_URL
         value: "https://subjective-alignment-backend.onrender.com/api"
-      - key: CORS_ALLOWED_ORIGINS
-        value: "https://subjective-alignment-frontend.onrender.com"
-      - key: CSRF_TRUSTED_ORIGINS
-        value: "https://subjective-alignment-frontend.onrender.com"

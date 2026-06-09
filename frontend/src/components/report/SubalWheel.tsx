@@ -89,9 +89,9 @@ type Props = {
 const SIZE = 1000;
 const CENTER = SIZE / 2;
 const INNER_RADIUS = 70;
-const OUTER_RADIUS = 360;
-const LABEL_INNER = 372;
-const LABEL_OUTER = 470;
+const OUTER_RADIUS = 335;
+const LABEL_INNER = 345;
+const LABEL_OUTER = 495;
 const START_ANGLE = 90;
 const ANGLE_PER_SEGMENT = 360 / 8;
 const ICON_SIZE = 56;
@@ -134,7 +134,7 @@ function segmentRightAngle(index: number) {
 /** Icon sits on the outer-right of the slice, inset from the edge */
 function segmentIconPoint(index: number) {
   const rightAngle = segmentRightAngle(index);
-  return polar(rightAngle + ANGLE_PER_SEGMENT * 0.24, LABEL_OUTER - 44);
+  return polar(rightAngle + ANGLE_PER_SEGMENT * 0.22, LABEL_OUTER - 48);
 }
 
 function WheelIcon({
@@ -175,7 +175,7 @@ function SegmentLabel({
   number: number;
   nameLines: string[];
 }) {
-  const anchor = polar(segmentMidAngle(index), LABEL_INNER + (LABEL_OUTER - LABEL_INNER) * 0.36);
+  const anchor = polar(segmentMidAngle(index), LABEL_INNER + (LABEL_OUTER - LABEL_INNER) * 0.44);
   const nameBlockHeight = nameLines.length * NAME_LINE_HEIGHT;
   const blockHeight = NUMBER_FONT_SIZE + GAP_AFTER_NUMBER + nameBlockHeight;
   const blockTop = anchor.y - blockHeight / 2;

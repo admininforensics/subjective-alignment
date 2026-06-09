@@ -24,14 +24,19 @@ gunicorn config.wsgi:application
 
 ## Backend Environment Variables
 
+Set these on the **backend** service (not the frontend). In `render.yaml` they live under `subjective-alignment-backend` → `envVars`.
+
 ```env
 SECRET_KEY=
 DEBUG=False
 DATABASE_URL=
-ALLOWED_HOSTS=
-CORS_ALLOWED_ORIGINS=
-JWT_SECRET=
+ALLOWED_HOSTS=.onrender.com
+FRONTEND_URL=https://subjective-alignment-frontend.onrender.com
+CORS_ALLOWED_ORIGINS=https://subjective-alignment-frontend.onrender.com
+CSRF_TRUSTED_ORIGINS=https://subjective-alignment-frontend.onrender.com
 ```
+
+`CORS_ALLOWED_ORIGINS` must be the full frontend origin (scheme + host, no trailing slash). Comma-separate multiple origins if needed.
 
 ## Frontend Environment Variables
 

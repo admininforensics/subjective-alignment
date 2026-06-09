@@ -80,6 +80,7 @@ export type AssessmentReport = {
     domain: string;
     title: string;
     why_this_matters: string;
+    reflective_question: string;
   }>;
   suggested_next_steps: string[];
   closing_reflection: string;

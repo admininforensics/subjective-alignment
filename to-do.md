@@ -2,103 +2,119 @@
 
 This file is meant to stay **continuously updated** as we progress.
 
+## MVP status
+
+**Core product loop is built and working:** sign up → activate licence (or dev bypass) → paginated assessment → scored results → full SUBAL narrative report (SUBAL wheel, focus areas, print/PDF).
+
+Deployed on Render (`subjective-alignment-frontend` / `subjective-alignment-backend`). Remaining work is mostly **production hardening**, **org/admin workflows**, and **polish** — not greenfield features.
+
+---
+
 ## Done
 
+### Foundation
 - **Spec review**: Read and followed `00 starter-pack/docs/*` build order and constraints (data-driven, CSV-seeded).
-- **Repo scaffolding**: Created `backend/`, `frontend/`, and top-level `seed_data/` populated from the starter pack CSVs.
-- **Backend foundation**:
-  - Django 5 project (`backend/config`)
-  - DRF + SimpleJWT auth wired in settings
-  - Postgres-ready DB config via `DATABASE_URL` (fallback sqlite for local)
-  - CORS enabled for local dev
-- **Backend data model**: Implemented core models + migrations:
-  - Organisation, custom User + roles, ManagerAssignment
-  - Assessment content (Assessment/Area/SubArea/Domain/Question/Weights)
-  - Licensing + sessions (Licence, AssessmentSession)
-  - Auditability + results snapshots (Response, DomainScoreResult, TriggeredFlag)
-  - Rules (pairwise + `rule_type`)
-- **CSV import (idempotent)**:
-  - `python manage.py seed_assessment ...` uses `mac_roman`, domain normalization, blank-weight parsing
-- **Scoring + rule engines**:
-  - Reverse-likert and weighted scoring persisted at completion time
-  - Pairwise AND rule triggering persisted as flagged insight snapshots
-- **Backend APIs (MVP)**: Implemented endpoints from `12_API_CONTRACTS.md`:
-  - Auth login, dashboard, current assessment, session start/detail/save/complete, results detail
-  - Org respondents/results listing, licence assignment (basic)
-- **Backend tests**:
-  - Import normalization/idempotency
-  - Scoring (reverse + threshold)
-  - Rule triggering
-- **Frontend (MVP)**:
-  - Next.js App Router + TS + Tailwind + shadcn/ui + TanStack Query + Recharts
-  - Pages: `/login`, `/dashboard`, `/assessment/[sessionId]`, `/results/[sessionId]`, `/admin`
-  - API client + localStorage auth
-- **Verification**:
-  - Backend test suite passing
-  - Frontend lint passing; build passing
-- **Admin visibility for CSV source files**:
-  - Added a custom admin page to view/preview/download CSVs from `/data`
-- **UI refresh (light clinical theme)**:
-  - Light calm palette, Elms Sans headings + Source Sans 3 body
-  - App shell (top nav, user menu, sign out)
-  - Split-screen auth layout (login/signup/forgot/reset)
-  - Login background image path documented under `frontend/public/images/`
+- **Repo scaffolding**: `backend/`, `frontend/`, `data/` / `seed_data/` CSVs.
+- **Backend foundation**: Django 5, DRF, SimpleJWT, Postgres via `DATABASE_URL`, CORS, WhiteNoise, `render.yaml` blueprint.
+- **Backend data model**: Organisation, User + roles, ManagerAssignment, assessment content, licensing/sessions, results snapshots, rules.
+- **CSV import (idempotent)**: `seed_assessment` / `seed_default_assessment` (auto-runs on Render deploy).
+- **Scoring + rule engines**: Reverse-likert, weighted domain scores, pairwise rule flags at completion.
+- **Backend tests**: Import, scoring, rules, licensing session management, password reset, report generation (template provider).
+
+### APIs
+- Auth: login, signup, refresh, password reset request + confirm.
+- Respondent flow: dashboard, current assessment, session start/detail/save/complete, results detail.
+- Licensing: activate by code, assign, stub purchase.
+- Session management: restart in-progress, delete latest completed.
+- Dev-only: `POST /api/sessions/simulate-complete/` (random 1–5 scores, `DEBUG=True` only).
+- Org: respondents + results listing (basic).
+
+### Frontend
+- Pages: `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/dashboard`, `/assessment/[sessionId]`, `/results/[sessionId]`, `/admin`.
+- API client + auth (localStorage JWT, refresh-on-401).
+- TanStack Query wired via root `Providers`.
+- **UI refresh**: Light clinical theme, Elms Sans + Source Sans 3, `AppShell`, `AuthLayout`, login background image support.
+- **Assessment UX**: 5 questions per page, page-gated Next, autosave, **Save and exit**, progress bar.
+- **Dashboard**: licence activation, continue/start, restart assessment, delete previous assessment, dev simulate button.
+- **Results**: Full SUBAL report sections, alignment wheel, print-to-PDF download.
+- **Admin**: Respondent list (read-only).
+
+### Auth & licensing (recent)
+- Password reset flow (email link; console backend locally, SMTP needed on Render).
+- Licence activation by code on dashboard.
+- `SKIP_LICENCE_REQUIREMENT` + dev org auto-assignment for local/testing (must be **off** in production).
+- `ensure_superuser` on Render deploy.
+
+### Reports (recent)
+- `AssessmentReport` model + `generate_report()` pipeline.
+- LLM narratives: OpenAI, Ollama, or template fallback (`REPORT_LLM_PROVIDER`).
+- Frontend report page with SUBAL wheel and section layout.
+
+### Ops & docs
+- `USER_MANUAL.md` (local run, licences, env vars).
+- Django admin: licences (incl. code generation), CSV preview page.
+
+---
 
 ## Still to do
 
-- **Render + HTTPS go-live checklist**:
-  - **Blueprint setup**:
-    - Create Render Blueprint from `admininforensics/subjective-alignment` (uses `render.yaml`).
-    - Set frontend `NEXT_PUBLIC_API_URL` to `https://<backend>.onrender.com/api` (must include `/api`).
-  - **Backend env (Render → backend service → Environment)**:
-    - Ensure `DEBUG=False`, `SECURE_SSL_REDIRECT=True`.
-    - Add `CORS_ALLOWED_ORIGINS=https://<frontend>.onrender.com` (comma-separated if multiple).
-    - Add `CSRF_TRUSTED_ORIGINS=https://<frontend>.onrender.com` (comma-separated if multiple).
-    - Ensure `ALLOWED_HOSTS` includes `.onrender.com` and any custom domains.
-  - **Frontend deploy**:
-    - Redeploy frontend after setting `NEXT_PUBLIC_API_URL` (it’s baked in at build time).
-    - If build still fails, use “Clear build cache & deploy”.
-  - **Custom domain (optional)**:
-    - Add custom domain(s) to the **frontend** service in Render.
-    - Create DNS records at your registrar (as shown by Render).
-    - Wait for Render to provision SSL cert; confirm HTTPS works and HTTP redirects.
-  - **Smoke test**:
-    - Confirm login + signup works.
-    - Confirm API calls go to `https://<backend>.onrender.com/api/...` in browser Network tab.
+### 1. Production go-live (recommended first)
 
-- **Onboarding (signup)**:
-  - Add `/signup` page and `POST /api/auth/signup/` to create a respondent + organisation for local/demo use.
-  - Later: replace with invitation-based onboarding (org admin issues invites) and stronger password policy / email verification.
+- [ ] **Turn off licence bypass on Render**: ensure `SKIP_LICENCE_REQUIREMENT` is unset/false on backend; do not set `NEXT_PUBLIC_SKIP_DEV_TOOLS` on frontend.
+- [ ] **Fix Render CORS env**: `CORS_ALLOWED_ORIGINS` and `CSRF_TRUSTED_ORIGINS` belong on the **backend** service (currently duplicated on frontend in `render.yaml` — move/add on backend).
+- [ ] **SMTP for password reset**: set `EMAIL_HOST`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`, `DEFAULT_FROM_EMAIL` on backend.
+- [ ] **Report LLM on Render**: set `REPORT_LLM_PROVIDER=openai` + `OPENAI_API_KEY`, or `template` for deterministic copy without an LLM. Ollama is local-only.
+- [ ] **Smoke test on production**: signup/login, licence activate, full assessment, report generation, password reset email.
+- [ ] **Custom domain (optional)**: DNS + SSL on Render frontend; update `FRONTEND_URL`, CORS, and `NEXT_PUBLIC_API_URL` if URLs change.
 
-- **Licensing (purchase + PayFast)**:
-  - Add basic “Get a licence” flow in the UI (stubbed purchase endpoint).
-  - Integrate PayFast for real payments (webhook/ITN verification), then gate licence creation behind successful payment.
-  - Add admin UI for licence inventory + assignment + revocation.
+### 2. Assessment & results polish
 
-- **Permissions hardening (backend)**:
-  - Enforce manager/admin visibility rules consistently across all session/result endpoints (currently focused on results; session access is respondent-only in the main flow).
-  - Add explicit permission classes (instead of inline checks) for consistency and testability.
-- **Admin/org workflows (backend + frontend)**:
-  - Admin UI for licence inventory and assignment (frontend currently only lists respondents).
-  - Endpoints for listing licences and their statuses (available/assigned/in_progress/consumed).
-  - Better manager views (assigned respondents + progress summaries).
-- **Assessment UX polish (frontend)**:
-  - Better navigation (question index, “unanswered” indicator), and clearer autosave state.
-  - Likert labels (Strongly disagree → Strongly agree) instead of numbers only.
-- **Results UX polish (frontend)**:
-  - Refine radar chart styling for light theme; insight card typography.
-  - Improve copy to match “insightful, not clinical” tone.
-- **Deployment readiness**:
-  - Document Render setup (backend + frontend env vars) in repo docs (starter pack has guidance; we should mirror it here).
-  - Production settings tightening (DEBUG false defaults, allowed hosts, CORS origins required in prod).
-- **Seed/import robustness**:
-  - Add stronger validation (required columns, row counts, domain column detection).
-  - Add logging improvements and/or `--dry-run`.
-- **Testing expansion**:
-  - API permission tests (respondent vs manager vs org admin vs super admin)
-  - Session start/resume/locking edge cases (cannot complete twice, cannot edit after completion)
+- [ ] **Likert labels** on assessment buttons (e.g. Strongly disagree → Strongly agree), not numbers only.
+- [ ] **Clearer autosave state** (saved / saving / error per page).
+- [ ] **Results copy pass**: tone check against “insightful, not clinical”; refine template/LLM prompts if needed.
+- [ ] **Radar / wheel styling** tweaks for print layout (page breaks, margins).
 
-## Next recommended step
+### 3. Permissions & testing
 
-- **Implement full licence/admin workflow** (licence inventory + assignment UI + API), then **permission tests** to lock in visibility rules.
+- [ ] **Permission hardening**: consistent manager/org-admin access on session + result endpoints (results partially covered via `can_view_session`; session detail is respondent-only).
+- [ ] **DRF permission classes** instead of scattered inline checks.
+- [ ] **API permission tests**: respondent vs manager vs org admin vs super admin.
+- [ ] **Session edge-case tests**: cannot complete twice, cannot edit after completion, restart/delete flows.
 
+### 4. Org / admin workflows
+
+- [ ] **Licence inventory API**: list licences by org with status (available / assigned / in progress / consumed).
+- [ ] **Admin UI**: create/assign/revoke licences, view respondent progress (beyond read-only list).
+- [ ] **Manager dashboard**: assigned respondents + progress summaries.
+
+### 5. Seed / import robustness
+
+- [ ] Stronger CSV validation (required columns, row counts).
+- [ ] `--dry-run` on `seed_assessment`.
+
+---
+
+## Later / post-MVP
+
+- **PayFast payment gate**: real purchase flow + ITN webhook; gate `purchase_licence_for_user` behind verified payment. Stub endpoint exists today.
+- **Invitation-based onboarding**: replace open signup with org-admin invites; email verification; stronger password policy.
+- **Super-admin reset**: explicit admin action to reset a completed session (per business rules doc) instead of respondent self-delete.
+- **Dedicated PDF export** (server-side or improved print CSS) if print-to-PDF is not enough.
+- **Rate limiting** on auth and simulate endpoints.
+- **Monitoring**: error tracking (e.g. Sentry), uptime checks on Render.
+
+---
+
+## Next recommended steps
+
+1. **Production hardening checklist** (§1 above) — especially CORS on backend, disable licence bypass, configure SMTP + report LLM.
+2. **Likert labels** — quick UX win before wider user testing.
+3. **Permission tests + licence inventory API** — unlocks real org-admin use without Django admin.
+
+---
+
+## Notes
+
+- Local dev: see `USER_MANUAL.md`. Default API `http://localhost:8000/api`, frontend `http://localhost:3000`.
+- Dev simulate button: frontend shows in `development` or when `NEXT_PUBLIC_SHOW_DEV_TOOLS=true`; backend requires `DEBUG=True`.
+- Do not commit `backend/.env` or `frontend/.env.local`.

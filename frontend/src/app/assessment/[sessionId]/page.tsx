@@ -13,6 +13,14 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 
 const QUESTIONS_PER_PAGE = 5;
 
+const LIKERT_OPTIONS = [
+  { value: 1, label: "Strongly disagree" },
+  { value: 2, label: "Disagree" },
+  { value: 3, label: "Neutral" },
+  { value: 4, label: "Agree" },
+  { value: 5, label: "Strongly agree" },
+] as const;
+
 export default function AssessmentPage() {
   const router = useRouter();
   const params = useParams<{ sessionId: string }>();
@@ -125,16 +133,16 @@ export default function AssessmentPage() {
                 <CardTitle className="text-base font-medium">{question.text}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-5 gap-2">
-                  {[1, 2, 3, 4, 5].map((v) => (
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-5">
+                  {LIKERT_OPTIONS.map(({ value, label }) => (
                     <Button
-                      key={v}
-                      variant={selected === v ? "default" : "secondary"}
-                      className="transition-ui"
-                      onClick={() => saveAnswer(question.id, v)}
+                      key={value}
+                      variant={selected === value ? "default" : "secondary"}
+                      className="h-auto min-h-10 whitespace-normal px-2 py-2 text-left text-xs leading-snug transition-ui sm:text-center sm:text-sm"
+                      onClick={() => saveAnswer(question.id, value)}
                       disabled={save.isPending || isCompleted}
                     >
-                      {v}
+                      {label}
                     </Button>
                   ))}
                 </div>

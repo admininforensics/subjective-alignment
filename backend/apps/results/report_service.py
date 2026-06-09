@@ -10,12 +10,16 @@ from apps.results.constants import (
     DOMAIN_ORDER,
     DOMAIN_REFLECTIONS,
     DOMAIN_SLUGS,
-    FOCUS_AREA_TEMPLATES,
     SUGGESTED_NEXT_STEPS,
     WELCOME_TEXT,
 )
+from apps.results.focus_areas import build_section6_context
 from apps.results.interpretation import build_snapshot_variables, normalize_domain_results
-from apps.results.llm import generate_overall_snapshot, generate_what_results_suggest
+from apps.results.llm import (
+    generate_focus_areas,
+    generate_overall_snapshot,
+    generate_what_results_suggest,
+)
 from apps.results.models import AssessmentReport, DomainScoreResult, TriggeredFlag
 from apps.results.theme_extraction import build_section5_context
 
@@ -64,27 +68,6 @@ def _build_full_results_summary(normalized: dict[str, dict]) -> list[dict]:
             }
         )
     return summary
-
-
-def _build_focus_areas(normalized: dict[str, dict]) -> list[dict]:
-    tops = sorted(
-        normalized.items(),
-        key=lambda item: item[1]["normalized_score"],
-        reverse=True,
-    )[:3]
-
-    focus = []
-    for rank, (name, _) in enumerate(tops, start=1):
-        template = FOCUS_AREA_TEMPLATES.get(name, {"title": name, "why": DOMAIN_REFLECTIONS.get(name, "")})
-        focus.append(
-            {
-                "rank": rank,
-                "domain": name,
-                "title": template["title"],
-                "why_this_matters": template["why"],
-            }
-        )
-    return focus
 
 
 def _domain_data(normalized: dict[str, dict], name: str) -> dict:
@@ -138,9 +121,31 @@ def generate_report(*, session: AssessmentSession) -> AssessmentReport:
         interaction_theme=snapshot_variables["interaction_theme"],
     )
 
+    section6_context = build_section6_context(
+        session=session,
+        normalized=normalized,
+        interaction_theme=snapshot_variables["interaction_theme"],
+        snapshot_variables=snapshot_variables,
+    )
+
     main_pattern, snapshot_provider = generate_overall_snapshot(snapshot_variables)
     what_results_suggest, section5_provider = generate_what_results_suggest(section5_context)
-    llm_provider = snapshot_provider if snapshot_provider != "template" else section5_provider
+    focus_areas_raw, section6_provider = generate_focus_areas(section6_context)
+    llm_provider = next(
+        (provider for provider in (snapshot_provider, section5_provider, section6_provider) if provider != "template"),
+        "template",
+    )
+
+    recommended_focus_areas = [
+        {
+            "rank": index,
+            "domain": area["theme"],
+            "title": area["title"],
+            "why_this_matters": area["why_this_matters"],
+            "reflective_question": area["reflective_question"],
+        }
+        for index, area in enumerate(focus_areas_raw, start=1)
+    ]
 
     payload = {
         "welcome": WELCOME_TEXT,
@@ -153,11 +158,12 @@ def generate_report(*, session: AssessmentSession) -> AssessmentReport:
         "top_strain_areas": _build_top_strain_areas(normalized, flags),
         "full_results_summary": _build_full_results_summary(normalized),
         "what_results_suggest": what_results_suggest,
-        "recommended_focus_areas": _build_focus_areas(normalized),
+        "recommended_focus_areas": recommended_focus_areas,
         "suggested_next_steps": SUGGESTED_NEXT_STEPS,
         "closing_reflection": CLOSING_REFLECTION,
         "wheel": _build_wheel_payload(normalized),
         "section5_context": section5_context,
+        "section6_context": section6_context,
         "llm_provider": llm_provider,
         "llm_used": llm_provider != "template",
     }
