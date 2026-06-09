@@ -237,11 +237,16 @@ def delete_latest_completed_session(*, user: User) -> None:
     licence.save(update_fields=["status", "consumed_at"])
 
 
+def can_simulate_survey(*, user: User) -> bool:
+    """True when the user may use survey simulation (admin flag or local DEBUG)."""
+    return bool(user.allow_survey_simulation or settings.DEBUG)
+
+
 @transaction.atomic
 def simulate_survey_completion(*, user: User, raw_likert_score: int | None = None) -> AssessmentSession:
-    """Fill every question and complete the session. DEBUG-only helper for local testing."""
-    if not settings.DEBUG:
-        raise SessionError("Survey simulation is only available when DEBUG=True")
+    """Fill every question and complete the session. Testing helper for flagged users or DEBUG."""
+    if not can_simulate_survey(user=user):
+        raise SessionError("Survey simulation is not enabled for this account")
 
     if raw_likert_score is not None and (raw_likert_score < 1 or raw_likert_score > 5):
         raise SessionError("Likert score must be between 1 and 5")

@@ -168,3 +168,10 @@ class SimulateSurveyCompletionTests(TestCase):
 
         with self.assertRaises(SessionError):
             simulate_survey_completion(user=self.user)
+
+    @override_settings(DEBUG=False)
+    def test_simulate_allowed_when_user_flag_set(self):
+        self.user.allow_survey_simulation = True
+        self.user.save(update_fields=["allow_survey_simulation"])
+        session = simulate_survey_completion(user=self.user)
+        self.assertEqual(session.status, SessionStatus.COMPLETED)

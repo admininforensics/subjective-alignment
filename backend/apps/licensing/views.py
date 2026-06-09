@@ -16,6 +16,7 @@ from apps.licensing.serializers import (
 from apps.licensing.services import (
     LicenceError,
     SessionError,
+    can_simulate_survey,
     complete_session,
     delete_latest_completed_session,
     get_dashboard_info,
@@ -51,6 +52,7 @@ class DashboardView(APIView):
                 "latest_result": {"session_id": info.latest_completed_session.id}
                 if info.latest_completed_session
                 else None,
+                "can_simulate_survey": can_simulate_survey(user=request.user),
             }
         )
 

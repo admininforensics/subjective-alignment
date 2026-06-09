@@ -51,6 +51,16 @@ export default function DashboardClient() {
     start.mutate();
   };
 
+  const purchase = useMutation({
+    mutationFn: async () =>
+      apiFetch<{ purchased: boolean; licence: { id: number; status: string } }>("/licences/purchase/", {
+        method: "POST",
+      }),
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+
   const activate = useMutation({
     mutationFn: async () =>
       apiFetch<{ activated: boolean; licence: { id: number; status: string } }>("/licences/activate/", {
@@ -58,6 +68,7 @@ export default function DashboardClient() {
         body: JSON.stringify({ code: licenceCode.trim() }),
       }),
     onSuccess: async () => {
+      setLicenceCode("");
       await qc.invalidateQueries({ queryKey: ["dashboard"] });
     },
   });
@@ -93,11 +104,9 @@ export default function DashboardClient() {
 
   if (!accessToken) return null;
 
-  const showSimulateButton =
-    process.env.NODE_ENV === "development" ||
-    process.env.NEXT_PUBLIC_SHOW_DEV_TOOLS === "true";
+  const showSimulateButton = Boolean(dashboard.data?.can_simulate_survey);
   const hasLicence = Boolean(dashboard.data?.assigned_licence);
-  const licenceConsumed = dashboard.data?.assigned_licence?.status === "CONSUMED";
+  const showLicenceOptions = dashboard.isSuccess && !hasLicence;
   const canGenerateReport = Boolean(dashboard.data?.latest_result?.session_id);
   const sessionStatus = dashboard.data?.session?.status;
   const hasInProgressSession =
@@ -119,42 +128,47 @@ export default function DashboardClient() {
             <CardTitle>Assessment</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            <div className="grid gap-3 rounded-lg border border-border bg-muted/30 p-4">
-              <div>
-                <h3 className="text-sm font-medium">Licence</h3>
+            {showLicenceOptions ? (
+              <div className="grid gap-4 rounded-lg border border-border bg-muted/30 p-4">
                 <p className="text-sm text-muted-foreground">
-                  {hasLicence
-                    ? licenceConsumed
-                      ? "Your licence is still assigned. Delete the previous assessment below to start a new one with the same licence."
-                      : "Your licence is active. You can start or continue the assessment below."
-                    : "Enter the licence code you received before starting the assessment."}
+                  Purchase a licence or enter a code you received to start the assessment.
                 </p>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="licenceCode">Licence code</Label>
-                <Input
-                  id="licenceCode"
-                  value={licenceCode}
-                  onChange={(e) => setLicenceCode(e.target.value)}
-                  placeholder="Enter your licence code"
-                  autoComplete="off"
-                  disabled={hasLicence || activate.isPending}
-                />
-              </div>
-              {hasLicence ? (
-                <p className="text-sm text-muted-foreground">
-                  Status: {dashboard.data?.assigned_licence?.status ?? "active"}
-                </p>
-              ) : (
                 <Button
-                  onClick={() => activate.mutate()}
-                  disabled={activate.isPending || !licenceCode.trim()}
+                  onClick={() => purchase.mutate()}
+                  disabled={purchase.isPending || activate.isPending}
                 >
-                  {activate.isPending ? "Activating…" : "Activate licence"}
+                  {purchase.isPending ? "Processing…" : "Purchase licence"}
                 </Button>
-              )}
-              {activate.error ? <p className="text-sm text-destructive">{activate.error.message}</p> : null}
-            </div>
+                <div className="relative py-1">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase tracking-wide">
+                    <span className="bg-muted/30 px-2 text-muted-foreground">or enter a code</span>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="licenceCode">Licence code</Label>
+                  <Input
+                    id="licenceCode"
+                    value={licenceCode}
+                    onChange={(e) => setLicenceCode(e.target.value)}
+                    placeholder="Enter your licence code"
+                    autoComplete="off"
+                    disabled={activate.isPending || purchase.isPending}
+                  />
+                </div>
+                <Button
+                  variant="secondary"
+                  onClick={() => activate.mutate()}
+                  disabled={activate.isPending || purchase.isPending || !licenceCode.trim()}
+                >
+                  {activate.isPending ? "Activating…" : "Enter licence code"}
+                </Button>
+                {purchase.error ? <p className="text-sm text-destructive">{purchase.error.message}</p> : null}
+                {activate.error ? <p className="text-sm text-destructive">{activate.error.message}</p> : null}
+              </div>
+            ) : null}
 
             <div className="grid gap-2">
               <div className="flex items-center justify-between text-sm">
@@ -211,9 +225,6 @@ export default function DashboardClient() {
                 >
                   {deleteCompleted.isPending ? "Deleting…" : "Delete previous assessment"}
                 </Button>
-              ) : null}
-              {!hasLicence ? (
-                <p className="text-sm text-muted-foreground">Activate a licence to start the assessment.</p>
               ) : null}
               {start.error ? <p className="text-sm text-destructive">{start.error.message}</p> : null}
               {restart.error ? <p className="text-sm text-destructive">{restart.error.message}</p> : null}

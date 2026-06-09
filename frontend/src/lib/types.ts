@@ -5,6 +5,7 @@ export type AuthUser = {
   email: string;
   role: UserRole;
   organisation_id: number | null;
+  allow_survey_simulation: boolean;
 };
 
 export type LoginResponse = {
@@ -17,6 +18,7 @@ export type DashboardResponse = {
   assigned_licence: { id: number; status: string } | null;
   session: { id: number; status: string; progress: number | null } | null;
   latest_result: { session_id: number } | null;
+  can_simulate_survey: boolean;
 };
 
 export type SessionDetailResponse = {

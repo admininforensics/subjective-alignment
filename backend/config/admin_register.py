@@ -56,9 +56,10 @@ class TriggeredFlagInline(admin.TabularInline):
 @admin.register(User, site=admin_site)
 class UserAdmin(DjangoUserAdmin):
     fieldsets = DjangoUserAdmin.fieldsets + (
-        ("Subjective Alignment", {"fields": ("organisation", "role")}),
+        ("Subjective Alignment", {"fields": ("organisation", "role", "allow_survey_simulation")}),
     )
-    list_display = ("email", "username", "role", "organisation", "is_staff", "is_active")
+    list_display = ("email", "username", "role", "organisation", "allow_survey_simulation", "is_staff", "is_active")
+    list_filter = ("role", "allow_survey_simulation", "is_staff", "is_active")
     ordering = ("email",)
     search_fields = ("email", "username")
 

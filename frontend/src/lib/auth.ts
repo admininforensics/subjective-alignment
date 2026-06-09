@@ -21,7 +21,8 @@ function usersEqual(a: AuthUser | null, b: AuthUser | null): boolean {
     a.id === b.id &&
     a.email === b.email &&
     a.role === b.role &&
-    a.organisation_id === b.organisation_id
+    a.organisation_id === b.organisation_id &&
+    a.allow_survey_simulation === b.allow_survey_simulation
   );
 }
 

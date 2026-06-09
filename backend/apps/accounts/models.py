@@ -21,6 +21,10 @@ class User(AbstractUser):
         related_name="users",
     )
     role = models.CharField(max_length=50, choices=UserRole.choices, default=UserRole.RESPONDENT)
+    allow_survey_simulation = models.BooleanField(
+        default=False,
+        help_text="Show the simulate survey completion button on the dashboard (for testing).",
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
