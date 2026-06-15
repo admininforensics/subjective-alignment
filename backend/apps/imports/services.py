@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import random
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -117,6 +118,8 @@ def _import_questions_and_weights(
     questions_csv: Path,
     domains_by_name: dict[str, Domain],
 ) -> tuple[int, int, int, int]:
+    from apps.results.models import Response
+
     rows = _read_csv(questions_csv)
     created_q = 0
     updated_q = 0
@@ -136,8 +139,10 @@ def _import_questions_and_weights(
     }
 
     domain_columns = [c for c in rows[0].keys() if c not in reserved_columns]
+    questions_by_csv_index: dict[int, Question] = {}
+    used_question_ids: set[int] = set()
 
-    for idx, row in enumerate(rows):
+    for csv_index, row in enumerate(rows):
         area, _ = Area.objects.update_or_create(name=(row.get("Area", "") or "").strip())
         subarea, _ = SubArea.objects.update_or_create(
             area=area,
@@ -149,22 +154,44 @@ def _import_questions_and_weights(
         individual = str(row.get("Individual", "0") or "0").strip() == "1"
         team = str(row.get("Team", "0") or "0").strip() == "1"
 
-        question, was_created = Question.objects.update_or_create(
-            assessment=assessment,
-            text=question_text,
-            defaults={
-                "area": area,
-                "subarea": subarea,
-                "order": idx + 1,
-                "reverse_logic": reverse_logic,
-                "individual": individual,
-                "team": team,
-            },
+        source_order = csv_index + 1
+        question = (
+            Question.objects.filter(assessment=assessment, text=question_text)
+            .exclude(id__in=used_question_ids)
+            .first()
         )
-        if was_created:
+        if question is None:
+            question = (
+                Question.objects.filter(assessment=assessment, order=source_order)
+                .exclude(id__in=used_question_ids)
+                .first()
+            )
+
+        if question is None:
+            question = Question.objects.create(
+                assessment=assessment,
+                area=area,
+                subarea=subarea,
+                text=question_text,
+                order=source_order,
+                reverse_logic=reverse_logic,
+                individual=individual,
+                team=team,
+            )
             created_q += 1
         else:
+            question.area = area
+            question.subarea = subarea
+            question.text = question_text
+            question.order = source_order
+            question.reverse_logic = reverse_logic
+            question.individual = individual
+            question.team = team
+            question.save()
             updated_q += 1
+
+        used_question_ids.add(question.id)
+        questions_by_csv_index[csv_index] = question
 
         for domain_col in domain_columns:
             domain_name = normalize_domain_name(domain_col)
@@ -183,6 +210,19 @@ def _import_questions_and_weights(
             else:
                 updated_w += 1
             _ = mapping
+
+    indexed_rows = list(questions_by_csv_index.items())
+    rng = random.Random(f"{assessment.name}:{assessment.version}")
+    rng.shuffle(indexed_rows)
+    for display_order, (_csv_index, question) in enumerate(indexed_rows, start=1):
+        if question.order != display_order:
+            question.order = display_order
+            question.save(update_fields=["order"])
+
+    imported_question_ids = {question.id for question in questions_by_csv_index.values()}
+    for orphan in Question.objects.filter(assessment=assessment).exclude(id__in=imported_question_ids):
+        if not Response.objects.filter(question=orphan).exists():
+            orphan.delete()
 
     return created_q, updated_q, created_w, updated_w
 

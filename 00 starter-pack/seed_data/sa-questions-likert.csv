@@ -1,133 +1,133 @@
 Question,Area,SubArea,Burnout Risk,Authenticity Strain,Suppressed Influence,Internal Contradiction,Structural Misfit,Old Wounds New Systems,Emotional Containment,Values Misalignment,Reverse Logic,Individual,Team
-I am financially dependent on my job.,Context,Economic,0,0.6,0,0,0,0,0,0.8,0,0,0
-My financial planning extends long term (years rather than months).,Context,Economic,0,0.4,0,0,0,0,0,0,0,0,0
-I would be significantly impacted by a 20–30% drop in income.,Context,Economic,0,0.2,0,0,0,0,0,0,0,0,0
-I feel financially secure in my current role.,Context,Economic,0,0.6,0,0,0,0,0,0.6,0,0,0
-My financial responsibilities outside of work influence how I show up professionally.,Context,Economic,0.4,0.8,0,0.8,0.4,0.8,0.8,0.6,0,0,0
-I often make career decisions primarily based on financial considerations.,Context,Economic,0,0.8,0.2,0.4,0.4,0.6,0,0.8,0,0,0
-I feel fully represented and included in the development of the company culture. ,Context,Political,0.8,1,0.8,1,0.8,0.6,0.4,0,1,0,1
-Unspoken cultural dynamics in my company tend to be ignored and are difficult to address.,Context,Political,0.6,0.8,0.6,0.6,0.4,0.4,0,0,0,0,0
-"I feel positive about conversations about transformation, race, or equity at work.",Context,Political,0,0.4,0.4,0,0,0.2,0.4,0.2,1,0,0
-"I feel that my identity (race, culture, background) negatively influences how others perceive my competence or potential.",Context,Political,0.8,0.8,0.2,1,0.2,1,0,0.6,0,0,0
-I often have to suppress aspects of who I am to be accepted in professional spaces.,Context,Political,0.8,1,0.2,1,0.4,0.8,0.4,0.4,0,1,0
-I believe my organisation creates real opportunities for people from diverse backgrounds to lead and thrive.,Context,Political,0.2,1,0.6,0.8,0.8,0.8,0.2,0.6,0,0,0
-In terms of my physical wellbeing I have a high level of energy and resilience.,Context,Health,1,0,0,0,0,0.6,0.8,0,1,0,0
-My emotional state has been one of feeling tense and overwhelmed. ,Context,Health,1,0.6,0,0.6,0,0.6,1,0.2,1,0,0
-My mental state has no affect on my professional role. ,Context,Health,1,0.8,0,0.8,0,1,0.8,0,1,0,0
-I feel physically and mentally empowered by my company to meet the demands of my current role.,Context,Health,1,1,0.8,0.8,0.8,0.6,0.8,0.6,1,0,0
-My work environment acknowledges or accommodates the natural fluctuations in people’s health or energy.,Context,Health,1,0.8,0.2,0.6,0,0.4,0.6,0.8,1,0,0
-I regularly take steps to protect and maintain my physical and emotional wellbeing.,Context,Health,1,0.4,0,0,0,0.6,0.8,0,1,0,0
-There is a good fit between my personality and my company. ,Context,Cultural,1,0.8,0.2,0.6, ,0.2,0.4,0.4,1,0,0
-There are clear and balanced levels of decision-making and communication in my organisation.,Context,Cultural,0.2,0.4,1,1,0.6,0.4,0.4,0.2,1,0,0
-The company’s unspoken value system around success is one of fitting in and conforming. ,Context,Cultural,0.8,1,0.8,0.8,0.4,0.6,0.6,0.4,1,0,0
-I feel that I can express myself authentically in my company’s culture.,Context,Cultural,0.6,1,0.4,0.6,0.4,0.4,0.4,0,1,0,1
-The way success is rewarded in my company aligns with how I define success personally.,Context,Cultural,0.6,1,0.4,0,0.4,0,0.4,1,1,0,0
-The company’s pace and energy levels match my natural working rhythm.,Context,Cultural,1,0.8,0.4,0.4,0.4,0,0.6,0,1,0,0
-There is a good balance between my responsibilities at work and with my family at home. ,Context,Family,1,0,0,0,0.8,0.6,0.8,0.8,1,0,0
-My family life enables me to cope with the demands at work. ,Context,Family,1,0,0,0,0.4,0.6,0.8,0.4,1,0,0
-"I feel that my family understands my work responsibilities, and that they provide the support I need.  ",Context,Family,1,0,0,0.6,0.4,0.4,0.8,0.4,1,0,0
-My family life adds meaning and balance to my professional role.,Context,Family,0.6,0.4,0,0,0.6,0.4,0.8,0.6,1,0,0
-The emotional climate at home allows me to recover from work stress.,Context,Family,1,0,0,0,0.8,0.4,0.8,0.8,1,0,0
-I feel supported and understood by the people closest to me.,Context,Family,0.8,0.6,0,0,0.6,0.8,0.8,0.6,1,0,0
-My work is highly visible to key decision-makers.,Position,Exposure,0.4,0.6,0.8,0,0.8,0,0,0.8,0,0,0
-I feel very uncomfortable with exposure at work. ,Position,Exposure,0.4,0.8,0.2,0.8,0.8,0.4,0,0.2,0,0,0
-I currently experience negative attention and scrutiny in my role. ,Position,Exposure,1,0.2,0,0,0,0.8,0.8,0,0,0,0
-I feel comfortable being seen and evaluated by others in my organisation.,Position,Exposure,0.8,0.8,0,0.8,1,0.4,0,0.6,1,0,0
-My current level of visibility aligns with my role and temperament.,Position,Exposure,0.6,1,0,1,1,0.4,0,0,1,0,0
-I know how to manage visibility strategically without compromising authenticity.,Position,Exposure,0.8,1,0,0.6,0.6,0,0,0,1,0,0
-My role is clearly defined within the company hierarchy.,Position,Hierarchy,0.6,1,1,0.6,1,0.4,0.4,0.2,1,0,0
-I experience the power and authority in my current environment as oppressive and unbalanced.,Position,Hierarchy,0.8,0.8,0.8,0.6,0.8,0.4,0.8,1,0,0,0
-"I have a strained relationship with leadership in general, and feel that those in power lack insight. ",Position,Hierarchy,0.2,0.6,0.8,0.4,1,0.4,0.8,0.8,0,1,0
-I understand how decisions are made and who holds influence in the organisation.,Position,Hierarchy,0.4,0.6,0.8,0.4,1,0.4,0.8,0.8,1,0,1
-I feel able to navigate organisational politics effectively when needed.,Position,Hierarchy,0.2,0.8,0.8,0,0.4,0.8,0.4,0.2,1,0,1
-The power dynamics in the company feel are in line with the goals of the organisation. ,Position,Hierarchy,0.4,0.8,0.4,0.8,1,0.6,0.4,0.8,1,0,1
-The interpersonal environment at work is supportive and energising.,Position,Relationships,0.8,0.6,0,0,0,0.6,0.6,0.6,1,0,1
-I am usually an outsider or observer when it comes to group situations at work. ,Position,Relationships,0.4,0.4,1,0,0.8,0.6,0.6,0.8,0,1,0
-I don’t feel emotioanlly safe with my colleagues. ,Position,Relationships,0.8,0.6,0,0,0,0.8,0.8,0.4,0,1,0
-I feel respected in my working relationships.,Position,Relationships,0.8,1,1,1,1,0.8,0.8,0.8,1,0,1
-I have at least one colleague I can confide in or lean on when needed.,Position,Relationships,0.6,0.2,0.4,0,0.8,0.6,1,0,1,0,1
-The social dynamics in my team help me do better work.,Position,Relationships,0.8,0.6,0.6,0.6,1,0.4,0.4,0.2,1,0,0
-My KPIs accurately reflect how I spend my time at work.,Position,KPIs,0.2,0.8,0.8,0.8,0.8,0.2,0.2,0.6,1,0,0
-My company uses a fair and thorough process to evaluate the outcome and quality of my work. ,Position,KPIs,0.2,0.8,0.8,0.8,0.8,0.2,0.2,0.2,1,0,0
-I find that KPI's are the best way to measure the outcome of my work. ,Position,KPIs,0.2,1,0.8,0.6,0.8,0.4,0.2,0.4,1,0,0
-My KPIs accurately reflect what success means in my role.,Position,KPIs,0.2,1,0.8,0.8,0.8,0.6,0.2,0.2,1,0,0
-The way performance is measured in this company motivates me.,Position,KPIs,0.8,0.8,0.8,0.8,0.8,0.4,0.2,0.2,1,0,0
-I understand how my outputs contribute to the company’s larger goals.,Position,KPIs,0.4,0.8,0.8,0.8,0.8,0.2,0.2,0.2,1,0,0
-I feel most energised when I am connecting with other people at work. ,Subjectivity,Personality,0.6,0.8,0,0.8,0,0.8,0.4,0,1,0,0
-"I enjoy fluidity, change, and open-ended problems. ",Subjectivity,Personality,0.4,0.8,0,0.4,1,0,0.4,0,1,0,0
-"I move through life practically, I prefer to not be guided by emotions. ",Subjectivity,Personality,0,1,0,0.6,1,0,0.4,0,1,0,0
-I feel most grounded when I have time to reflect and process alone.,Subjectivity,Personality,0,1,0,0.6,0.8,0,0.4,0,0,1,0
-People often misread or underestimate what I’m actually thinking or feeling.,Subjectivity,Personality,0.8,1,0,1,0.8,0,1,0,0,1,0
-My personality feels well-matched to the role I’m in.,Subjectivity,Personality,1,1,0,0.8,0.8,0,0.6,0,1,0,0
-I feel more motivated by stimulating tasks than by reward and recognition. ,Subjectivity,Motivation,0,0.8,0,0.8,0.4,0,0.4,0,0,1,0
-When facing a tough task I am motivated by the expectations of tohers. ,Subjectivity,Motivation,0.4,0,0,0.8,0,0,0.6,0.6,0,0,1
-I prefer practical tasks to solving puzzles. ,Subjectivity,Motivation,0.8,0.8,0,0.8,0.8,0,0.4,0,0,1,0
-I feel intrinsically motivated in my current role.,Subjectivity,Motivation,1,0.8,0,0.4,0.4,0,0.8,0,1,0,0
-I often find myself going beyond what’s required because the work matters to me.,Subjectivity,Motivation,1,0,0,0,0,0,0.8,0,0,1,0
-The things that motivate me are supported by the environment I work in.,Subjectivity,Motivation,0.8,1,0,1,0.6,0,0.8,1,1,0,0
-When facing prolonged stress at work I push through rather than stop and re-evaluate.,Subjectivity,Pain Management,1,0,0,0,0,0.8,0.8,0,0,0,0
-When I fail at work I struggle to focus on what I can learn because I feel personally injured. ,Subjectivity,Pain Management,0.8,0,0,0,0,1,1,0,0,0,0
-I recover from work stress by talking to other people about it and asking for support. ,Subjectivity,Pain Management,1,0.8,0,0.8,0,0.8,1,0,1,0,1
-I am aware of how I typically respond to emotional or psychological discomfort.,Subjectivity,Pain Management,0.8,0.6,0,0.8,0,1,1,0,1,0,0
-"When I am under pressure, I know how to return to a grounded state.",Subjectivity,Pain Management,1,0,0,1,0,0.6,1,0,1,0,0
-My current role allows me to acknowledge stress without being seen as weak.,Subjectivity,Pain Management,1,0,0,0.8,0.8,0.8,0.8,0,1,0,0
-There are negative past work expereinces that still influence how I show up for work. ,Subjectivity,Injuries,0.8,0,0,0,0,1,1,0,0,0,0
-When trust is broken in a work relationship I tend to withdraw rather than repair the relationship. ,Subjectivity,Injuries,0,0,0,0.4,0,1,0.8,0,0,1,0
-When it comes to takeing risks in my career I tend to be cautious. ,Subjectivity,Injuries,0.8,0,0,0,0,0.6,0.6,0,0,0,0
-There are past professional experiences I still think about more than I’d like.,Subjectivity,Injuries,0.6,0,0,0,0,1,0.8,0,0,0,0
-I can trace some of my current work habits back to negative surprises in the past.,Subjectivity,Injuries,0,0.4,0,0,0,1,0.8,0,0,0,0
-I feel that I’ve fully processed and integrated the difficult parts of my work history.,Subjectivity,Injuries,0.8,0.4,0,0,0,1,1,0,1,0,0
-At work I often end up carrying more responsibility than I am required to. ,Subjectivity,Unconscious,1,0,0,0,0.4,0.8,0.8,0,0,1,0
-I am energised by fixing problems in teams. ,Subjectivity,Unconscious,1,0,0,0,0.4,0.2,0,0,1,0,1
-When things go wrong at work I often feel like I don’t belong there. ,Subjectivity,Unconscious,0.4,0.4,0,0,0,0.8,1,0,0,1,0
-"Certain emotional themes keep repeating in my career, even when circumstances change.",Subjectivity,Unconscious,0.4,0,0,0.4,0,1,1,0,0,0,0
-Sometimes I find myself reacting strongly in ways I don’t fully understand.,Subjectivity,Unconscious,1,0.4,0,0,0.2,1,1,0,0,0,0
-I’ve developed insight into the unconscious patterns that shape how I show up at work.,Subjectivity,Unconscious,1,0,0,0,0,1,1,0,1,0,0
-I value  clear structure and guidance in my role.,Goals,Freedom,0,0.6,0,0,0.6,1,0,0,0,0,1
-Self sufficiency is of great importance to me. ,Goals,Freedom,0,0.8,0,0,0.6,0,0,0,0,1,0
-I feel comfortable when guided by the suggestions of others. ,Goals,Freedom,0,0.4,0,0,0,0.8,0,0,1,0,1
-I often feel slowed down when working with others,Goals,Freedom,0,0.4,0,0,0,0,0,0,1,1,0
-I find it difficult to focus when working in a group. ,Goals,Freedom,0,0.6,0,0,1,0,0,0,1,1,0
-I value task completion over recognition. ,Goals,Freedom,0,0.2,0,0,0.4,0,0,0,0,1,0
-I find that my workplace is too rigid and that my time is often wasted.,Goals,Opposition,0.8,0.8,1,0,1,0,0.6,1,0,0,0
-When I notice that something is wrong at work I solve it quietly without involving others.,Goals,Opposition,0.8,0.6,0.6,0,0.6,0.6,0.2,0.6,0,1,0
-The leadrership at work encourage creativity.,Goals,Opposition,0.4,0.6,0.8,0,0.8,0,0.2,0,1,0,1
-There are specific patterns in organisations that I find myself constantly resisting.,Goals,Opposition,0.2,0.8,0.8,0.6,0.6,0.6,0.2,0.6,0,1,0
-My professional choices are partly shaped by what I want to avoid or undo.,Goals,Opposition,0.2,0.4,0.6,0.8,0.2,0.8,0.4,0.2,0,0,0
-My current role gives me a chance to push against the things that frustrate me most.,Goals,Opposition,0.4,0.2,0.4,0,0.4,0.4,0.4,0.2,0,1,0
-Leaving a legacy is important to me and influences my approach to work. ,Goals,Legacy,0,0,0,1,0.4,0,0,0.4,0,0,0
-I am more interested in developing key parts of the business than in social development. ,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
-I am still searching for work that feels truly meaningful. ,Goals,Legacy,0,0,0,1,0.8,0,0,0.8,0,0,0
-I want my work to matter beyond immediate results.,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
-I think about the long-term impact of the choices I make in my career.,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
-My current role gives me opportunities to build or contribute to something lasting.,Goals,Legacy,0,0,0,1,0.8,0,0,0.8,0,0,0
-I prioritise learning new skills over managing my internal resources. ,Goals,Personal,1,0,0,1,0.2,0,0,0,0,1,0
-I measure my own growth based on the feedback from others. ,Goals,Personal,0.6,0.8,0,0.8,0.2,0,0,0,0,0,1
-I feel proud when I notice that I react differently in situations that used to trigger me. ,Goals,Personal,0.2,0,0,0.8,0.2,1,0.8,0,1,0,0
-My current role supports the person I’m trying to become.,Goals,Personal,0.8,1,0,0.6,0.2,0,0.2,1,1,0,0
-I make space in my life for growth that isn’t tied to external achievement.,Goals,Personal,0.8,1,0,0.8,0,0,0,0,0,0,0
-I’m aware of who I’m becoming through the choices I make at work.,Goals,Personal,0.8,1,0,0.8,0,0,0.8,0,1,0,0
-My organisation is thriving and forward-thinking.,Circumstances,Organisation Performance,0.8,0,0.6,0,0.8,0,0,1,1,0,0
-The place where I work rarely celebrates success. ,Circumstances,Organisation Performance,0.4,0.4,0,0,0,0,0.4,0.8,0,0,0
-I am concerned about my organisation's stability and growth. ,Circumstances,Organisation Performance,0.4,0,0.4,0.2,0.2,0,0,0,0,0,0
-I trust that the organisation is heading in a positive direction.,Circumstances,Organisation Performance,0,0.6,0.4,0.4,0.2,0,0.6,0,0,0,0
-Company-wide performance affects how I feel about my work.,Circumstances,Organisation Performance,0.4,0.2,0,0,0,0,0,0,0,0,1
-There is alignment between the company’s goals and what I value.,Circumstances,Organisation Performance,0,1,0,0,0,0,0,1,1,0,0
-My organisation currently views my team as underperforming.,Circumstances,Organisation Position,0.8,0,0,0,0,0,0.8,0,0,0,0
-My unit has a significant influence on the rest of the business. ,Circumstances,Organisation Position,1,0,0,0,0,0,0.4,0,0,0,0
-My role feels highly relevant in relation to the company’s strategic focus.,Circumstances,Organisation Position,0.2,1,0,0.6,1,0,0,0,0,0,1
-My team is seen as adding value to the organisation.,Circumstances,Organisation Position,1,0,0.8,0,0,0,0,0,1,0,1
-I feel that my role contributes meaningfully to the company’s overall goals.,Circumstances,Organisation Position,0.8,0,0.8,0,0,0,0,0.2,1,0,1
-The position I’m in is strategically well-placed within the organisation.,Circumstances,Organisation Position,0.4,0.8,1,0,0.8,0,0,0.2,1,0,1
-I would describe the overall tone of peer interactions in your workplace as competitive and guarded. ,Circumstances,Collegial Relationships,0.4,0.8,0,0,0,0.4,0.8,0.4,0,0,0
-I feel free to speak and share ideas in meetings or shared workspaces.,Circumstances,Collegial Relationships,0.8,1,0.4,0,0,0,0.4,0.4,1,0,0
+I depend on this job for my income.,Context,Economic,0,0.6,0,0,0,0,0,0.8,0,0,0
+I plan my finances for the long term.,Context,Economic,0,0.4,0,0,0,0,0,0,0,0,0
+A 20–30% reduction in my income would have a major impact on me.,Context,Economic,0,0.2,0,0,0,0,0,0,0,0,0
+My current job makes me feel financially secure.,Context,Economic,0,0.6,0,0,0,0,0,0.6,0,0,0
+Financial stress affects how I approach my work.,Context,Economic,0.4,0.8,0,0.8,0.4,0.8,0.8,0.6,0,0,0
+Money is a major factor in my long term career decisions.,Context,Economic,0,0.8,0.2,0.4,0.4,0.6,0,0.8,0,0,0
+I feel included in shaping my company’s identity,Context,Political,0.8,1,0.8,1,0.8,0.6,0.4,0,1,0,1
+Cultural issues in my company are often ignored.,Context,Political,0.6,0.8,0.6,0.6,0.4,0.4,0,0,0,0,0
+"I feel comfortable discussing transformation, race, or equity at work.",Context,Political,0,0.4,0.4,0,0,0.2,0.4,0.2,1,0,0
+I feel that my race and gender affects how others judge my ability at work.,Context,Political,0.8,0.8,0.2,1,0.2,1,0,0.6,0,0,0
+I hide parts of who I am to fit in at work.,Context,Political,0.8,1,0.2,1,0.4,0.8,0.4,0.4,0,1,0
+People from different backgrounds have real opportunities to succeed in my organisation.,Context,Political,0.2,1,0.6,0.8,0.8,0.8,0.2,0.6,0,0,0
+I generally have high levels of energy and resilience.,Context,Health,1,0,0,0,0,0.6,0.8,0,1,0,0
+I often feel tense or overwhelmed.,Context,Health,1,0.6,0,0.6,0,0.6,1,0.2,1,0,0
+My mental state does not affect my work performance.,Context,Health,1,0.8,0,0.8,0,1,0.8,0,1,0,0
+My company supports me in meeting the demands of my role.,Context,Health,1,1,0.8,0.8,0.8,0.6,0.8,0.6,1,0,0
+My workplace accommodates changes in people’s health and energy levels.,Context,Health,1,0.8,0.2,0.6,0,0.4,0.6,0.8,1,0,0
+I take regular steps to maintain my physical and emotional wellbeing.,Context,Health,1,0.4,0,0,0,0.6,0.8,0,1,0,0
+My personality is a good fit for my company.,Context,Cultural,1,0.8,0.2,0.6, ,0.2,0.4,0.4,1,0,0
+Decision-making and communication are clear in my organisation.,Context,Cultural,0.2,0.4,1,1,0.6,0.4,0.4,0.2,1,0,0
+Success in my company often depends on fitting in.,Context,Cultural,0.8,1,0.8,0.8,0.4,0.6,0.6,0.4,1,0,0
+I can be myself within my company culture.,Context,Cultural,0.6,1,0.4,0.6,0.4,0.4,0.4,0,1,0,1
+My company rewards success in ways that match my values.,Context,Cultural,0.6,1,0.4,0,0.4,0,0.4,1,1,0,0
+My company’s pace suits the way I naturally work.,Context,Cultural,1,0.8,0.4,0.4,0.4,0,0.6,0,1,0,0
+My work and family responsibilities are well balanced.,Context,Family,1,0,0,0,0.8,0.6,0.8,0.8,1,0,0
+My family life helps me manage the demands of work.,Context,Family,1,0,0,0,0.4,0.6,0.8,0.4,1,0,0
+My family understands my work responsibilities and supports me.,Context,Family,1,0,0,0.6,0.4,0.4,0.8,0.4,1,0,0
+My family life adds meaning and balance to my work.,Context,Family,0.6,0.4,0,0,0.6,0.4,0.8,0.6,1,0,0
+My home life helps me recover from work stress.,Context,Family,1,0,0,0,0.8,0.4,0.8,0.8,1,0,0
+The people closest to me support and understand me.,Context,Family,0.8,0.6,0,0,0.6,0.8,0.8,0.6,1,0,0
+The people who make important decisions are aware of my work.,Position,Exposure,0.4,0.6,0.8,0,0.8,0,0,0.8,0,0,0
+I feel uncomfortable when I am highly visible at work.,Position,Exposure,0.4,0.8,0.2,0.8,0.8,0.4,0,0.2,0,0,0
+I receive unwanted attention or criticism in my role.,Position,Exposure,1,0.2,0,0,0,0.8,0.8,0,0,0,0
+I am comfortable when others observe or evaluate my work.,Position,Exposure,0.8,0.8,0,0.8,1,0.4,0,0.6,1,0,0
+The amount of attention I receive at work suits both my role and personality.,Position,Exposure,0.6,1,0,1,1,0.4,0,0,1,0,0
+I can manage how visible I am at work without pretending to be someone I am not.,Position,Exposure,0.8,1,0,0.6,0.6,0,0,0,1,0,0
+My place in the company structure is clear.,Position,Hierarchy,0.6,1,1,0.6,1,0.4,0.4,0.2,1,0,0
+The power structures in my workplace feel unfair or oppressive.,Position,Hierarchy,0.8,0.8,0.8,0.6,0.8,0.4,0.8,1,0,0,0
+I often feel disconnected from leaders and people in authority.,Position,Hierarchy,0.2,0.6,0.8,0.4,1,0.4,0.8,0.8,0,1,0
+I understand how decisions are made in my organisation.,Position,Hierarchy,0.4,0.6,0.8,0.4,1,0.4,0.8,0.8,1,0,1
+I can manage workplace politics when necessary.,Position,Hierarchy,0.2,0.8,0.8,0,0.4,0.8,0.4,0.2,1,0,1
+The power dynamics in my company are healthy.,Position,Hierarchy,0.4,0.8,0.4,0.8,1,0.6,0.4,0.8,1,0,1
+My relationships at work are supportive and positive.,Position,Relationships,0.8,0.6,0,0,0,0.6,0.6,0.6,1,0,1
+I often feel like an outsider in group situations at work.,Position,Relationships,0.4,0.4,1,0,0.8,0.6,0.6,0.8,0,1,0
+I do not feel emotionally safe with my colleagues.,Position,Relationships,0.8,0.6,0,0,0,0.8,0.8,0.4,0,1,0
+I feel respected by the people I work with.,Position,Relationships,0.8,1,1,1,1,0.8,0.8,0.8,1,0,1
+I have at least one colleague I can turn to for support.,Position,Relationships,0.6,0.2,0.4,0,0.8,0.6,1,0,1,0,1
+The way people interact in my team helps me work effectively.,Position,Relationships,0.8,0.6,0.6,0.6,1,0.4,0.4,0.2,1,0,0
+My KPIs reflect how I actually spend my time at work.,Position,KPIs,0.2,0.8,0.8,0.8,0.8,0.2,0.2,0.6,1,0,0
+My company evaluates my work fairly.,Position,KPIs,0.2,0.8,0.8,0.8,0.8,0.2,0.2,0.2,1,0,0
+KPIs are a good way to measure my work outcomes.,Position,KPIs,0.2,1,0.8,0.6,0.8,0.4,0.2,0.4,1,0,0
+My KPIs reflect what success looks like in my role.,Position,KPIs,0.2,1,0.8,0.8,0.8,0.6,0.2,0.2,1,0,0
+The way my performance is measured motivates me.,Position,KPIs,0.8,0.8,0.8,0.8,0.8,0.4,0.2,0.2,1,0,0
+I understand how my work contributes to the company’s goals.,Position,KPIs,0.4,0.8,0.8,0.8,0.8,0.2,0.2,0.2,1,0,0
+I gain energy from interacting with people at work.,Subjectivity,Personality,0.6,0.8,0,0.8,0,0.8,0.4,0,1,0,0
+I enjoy change and problems without clear answers.,Subjectivity,Personality,0.4,0.8,0,0.4,1,0,0.4,0,1,0,0
+I prefer to make decisions based on practicality rather than emotion.,Subjectivity,Personality,0,1,0,0.6,1,0,0.4,0,1,0,0
+I feel most settled when I have time alone to think and reflect.,Subjectivity,Personality,0,1,0,0.6,0.8,0,0.4,0,0,1,0
+People often misunderstand what I am thinking or feeling.,Subjectivity,Personality,0.8,1,0,1,0.8,0,1,0,0,1,0
+My personality is a good fit for my role.,Subjectivity,Personality,1,1,0,0.8,0.8,0,0.6,0,1,0,0
+Interesting work motivates me more than praise or rewards.,Subjectivity,Motivation,0,0.8,0,0.8,0.4,0,0.4,0,0,1,0
+"When a task is difficult, other people's expectations motivate me.",Subjectivity,Motivation,0.4,0,0,0.8,0,0,0.6,0.6,0,0,1
+I prefer practical work over solving complex problems.,Subjectivity,Motivation,0.8,0.8,0,0.8,0.8,0,0.4,0,0,1,0
+I am motivated by the work itself in my current role.,Subjectivity,Motivation,1,0.8,0,0.4,0.4,0,0.8,0,1,0,0
+I often do more than is required because the work is important to me.,Subjectivity,Motivation,1,0,0,0,0,0,0.8,0,0,1,0
+My work environment supports the things that motivate me.,Subjectivity,Motivation,0.8,1,0,1,0.6,0,0.8,1,1,0,0
+"When work stress continues for a long time, I keep going rather than stepping back to reassess.",Subjectivity,Pain Management,1,0,0,0,0,0.8,0.8,0,0,0,0
+"When I fail at work, I find it hard to focus on learning because I take it personally.",Subjectivity,Pain Management,0.8,0,0,0,0,1,1,0,0,0,0
+I recover from work stress by talking to others and asking for help.,Subjectivity,Pain Management,1,0.8,0,0.8,0,0.8,1,0,1,0,1
+I understand how I usually react when I feel emotionally uncomfortable.,Subjectivity,Pain Management,0.8,0.6,0,0.8,0,1,1,0,1,0,0
+"When I am under pressure, I know how to calm and steady myself.",Subjectivity,Pain Management,1,0,0,1,0,0.6,1,0,1,0,0
+I can acknowledge stress in my role openly without being judged as weak.,Subjectivity,Pain Management,1,0,0,0.8,0.8,0.8,0.8,0,1,0,0
+Past negative work experiences still affect how I approach my job.,Subjectivity,Injuries,0.8,0,0,0,0,1,1,0,0,0,0
+"When trust is broken at work, I tend to pull away rather than repair the relationship.",Subjectivity,Injuries,0,0,0,0.4,0,1,0.8,0,0,1,0
+I tend to be cautious about taking risks in my career.,Subjectivity,Injuries,0.8,0,0,0,0,0.6,0.6,0,0,0,0
+There are past work experiences that I think about more than I want to.,Subjectivity,Injuries,0.6,0,0,0,0,1,0.8,0,0,0,0
+Some of my current work habits developed because of negative experiences in the past.,Subjectivity,Injuries,0,0.4,0,0,0,1,0.8,0,0,0,0
+I feel I have worked through the difficult parts of my work history.,Subjectivity,Injuries,0.8,0.4,0,0,0,1,1,0,1,0,0
+I often take on more responsibility than my role requires.,Subjectivity,Unconscious,1,0,0,0,0.4,0.8,0.8,0,0,1,0
+I gain energy from helping teams solve problems.,Subjectivity,Unconscious,1,0,0,0,0.4,0.2,0,0,1,0,1
+"When things go wrong at work, I often feel like I do not belong.",Subjectivity,Unconscious,0.4,0.4,0,0,0,0.8,1,0,0,1,0
+"The same emotional patterns often repeat in my career, even when situations change.",Subjectivity,Unconscious,0.4,0,0,0.4,0,1,1,0,0,0,0
+Sometimes I react strongly to problems at work without fully understanding why.,Subjectivity,Unconscious,1,0.4,0,0,0.2,1,1,0,0,0,0
+I understand some of the deeper patterns that influence how I behave at work.,Subjectivity,Unconscious,1,0,0,0,0,1,1,0,1,0,0
+Clear structure and guidance are important to me in my role.,Goals,Freedom,0,0.6,0,0,0.6,1,0,0,0,0,1
+Being self-sufficient is very important to me.,Goals,Freedom,0,0.8,0,0,0.6,0,0,0,0,1,0
+I am comfortable following other people's suggestions.,Goals,Freedom,0,0.4,0,0,0,0.8,0,0,1,0,1
+I often feel less efficient when working with others.,Goals,Freedom,0,0.4,0,0,0,0,0,0,1,1,0
+I find it hard to concentrate when working in a group.,Goals,Freedom,0,0.6,0,0,1,0,0,0,1,1,0
+Finishing tasks is more important to me than receiving recognition.,Goals,Freedom,0,0.2,0,0,0.4,0,0,0,0,1,0
+"My workplace feels too rigid, and I often feel my time is wasted.",Goals,Opposition,0.8,0.8,1,0,1,0,0.6,1,0,0,0
+"When I see a problem at work, I usually solve it on my own.",Goals,Opposition,0.8,0.6,0.6,0,0.6,0.6,0.2,0.6,0,1,0
+The leaders at work encourage creativity.,Goals,Opposition,0.4,0.6,0.8,0,0.8,0,0.2,0,1,0,1
+There are certain workplace patterns that I regularly push back against.,Goals,Opposition,0.2,0.8,0.8,0.6,0.6,0.6,0.2,0.6,0,1,0
+My career choices are influenced by what I want to avoid.,Goals,Opposition,0.2,0.4,0.6,0.8,0.2,0.8,0.4,0.2,0,0,0
+My current role allows me to address the things that frustrate me most.,Goals,Opposition,0.4,0.2,0.4,0,0.4,0.4,0.4,0.2,0,1,0
+Leaving a lasting impact is important to me and affects how I work.,Goals,Legacy,0,0,0,1,0.4,0,0,0.4,0,0,0
+I am more interested in improving the business than in social development.,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
+I am still looking for work that feels meaningful to me.,Goals,Legacy,0,0,0,1,0.8,0,0,0.8,0,0,0
+I want my work to have an impact beyond short-term results.,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
+I consider the long-term effects of my career decisions.,Goals,Legacy,0,0,0,1,0.6,0,0,0.6,0,0,0
+My current role allows me to contribute to something that will last.,Goals,Legacy,0,0,0,1,0.8,0,0,0.8,0,0,0
+I focus more on learning new skills than on managing my energy and resources.,Goals,Personal,1,0,0,1,0.2,0,0,0,0,1,0
+I judge my growth based on feedback from other people.,Goals,Personal,0.6,0.8,0,0.8,0.2,0,0,0,0,0,1
+I feel proud when I respond differently to situations that used to upset me.,Goals,Personal,0.2,0,0,0.8,0.2,1,0.8,0,1,0,0
+My current role helps me become the person I want to be.,Goals,Personal,0.8,1,0,0.6,0.2,0,0.2,1,1,0,0
+I make time for personal growth that is not linked to achievement.,Goals,Personal,0.8,1,0,0.8,0,0,0,0,0,0,0
+I am aware of how my work choices are shaping me.,Goals,Personal,0.8,1,0,0.8,0,0,0.8,0,1,0,0
+My organisation is successful and focused on the future.,Circumstances,Organisation Performance,0.8,0,0.6,0,0.8,0,0,1,1,0,0
+My workplace rarely celebrates success.,Circumstances,Organisation Performance,0.4,0.4,0,0,0,0,0.4,0.8,0,0,0
+I worry about my organisation’s stability and future growth.,Circumstances,Organisation Performance,0.4,0,0.4,0.2,0.2,0,0,0,0,0,0
+I believe my organisation is moving in a positive direction.,Circumstances,Organisation Performance,0,0.6,0.4,0.4,0.2,0,0.6,0,0,0,0
+How the company performs in general affects how I feel about my work.,Circumstances,Organisation Performance,0.4,0.2,0,0,0,0,0,0,0,0,1
+The company’s goals match what I value.,Circumstances,Organisation Performance,0,1,0,0,0,0,0,1,1,0,0
+My organisation sees my team as underperforming.,Circumstances,Organisation Position,0.8,0,0,0,0,0,0.8,0,0,0,0
+My team has a strong influence on the wider business.,Circumstances,Organisation Position,1,0,0,0,0,0,0.4,0,0,0,0
+My role is important to the company’s strategic goals.,Circumstances,Organisation Position,0.2,1,0,0.6,1,0,0,0,0,0,1
+My team is recognised as adding value to the organisation.,Circumstances,Organisation Position,1,0,0.8,0,0,0,0,0,1,0,1
+I believe my role contributes meaningfully to the company’s goals.,Circumstances,Organisation Position,0.8,0,0.8,0,0,0,0,0.2,1,0,1
+My role is well positioned within the organisation for what I want to achieve professionally.,Circumstances,Organisation Position,0.4,0.8,1,0,0.8,0,0,0.2,1,0,1
+Relationships at work feel competitive and gaurded.,Circumstances,Collegial Relationships,0.4,0.8,0,0,0,0.4,0.8,0.4,0,0,0
+I feel free to speak and share my ideas in meetings or shared workspaces.,Circumstances,Collegial Relationships,0.8,1,0.4,0,0,0,0.4,0.4,1,0,0
 "If I had a difficult week, my colleagues are very likely to notice and care.",Circumstances,Collegial Relationships,0.8,0.4,0,0,0,0.4,0.6,0,1,0,1
-I feel emotionally safe in my day-to-day interactions with colleagues.,Circumstances,Collegial Relationships,0.8,0.8,0.6,0,0,0.4,0.2,0,1,0,1
-I experience a sense of connection and camaraderie in my team.,Circumstances,Collegial Relationships,0.8,0.6,0,0,0.8,0,0.2,0.6,1,0,1
-My work relationships positively impact my energy and focus.,Circumstances,Collegial Relationships,1,0,0,0,0,0,0.8,0,1,0,1
-Internal problems at work are typically ignored or swept under the rug.,Circumstances,Internal Problems,0.4,0.8,0,0,0,0,0.6,0.8,0,1,0
-Unresolved tensions or politics often affect my ability to do good work.,Circumstances,Internal Problems,0,1,0.8,0.6,0.6,0,0.4,0.8,0,1,0
-When I notice dysfunction or avoidance in my work environment I address it direclty. ,Circumstances,Internal Problems,0.4,0.8,0.6,0,0,0,0,0.2,1,0,1
-There are systemic issues in my organisation that are rarely addressed.,Circumstances,Internal Problems,0.8,1,0.4,0,0,0,0.4,0.2,0,0,1
-Internal problems affect how I feel about my role and the company.,Circumstances,Internal Problems,0.8,0.2,0,0.6,0,0,0,0,0,0,1
-I feel empowered to raise concerns without fear of backlash.,Circumstances,Internal Problems,0.6,0.8,0.8,0,0,0,0,0.2,1,0,1
+My work environment feels like a safe space. ,Circumstances,Collegial Relationships,0.8,0.8,0.6,0,0,0.4,0.2,0,1,0,1
+I feel a good sense of belonging in my team. ,Circumstances,Collegial Relationships,0.8,0.6,0,0,0.8,0,0.2,0.6,1,0,1
+Work relationhips influence my energy levels and ability to focus. ,Circumstances,Collegial Relationships,1,0,0,0,0,0,0.8,0,1,0,1
+Problems at work between people are often ignored. ,Circumstances,Internal Problems,0.4,0.8,0,0,0,0,0.6,0.8,0,1,0
+The social politics at work create significant stress for me. ,Circumstances,Internal Problems,0,1,0.8,0.6,0.6,0,0.4,0.8,0,1,0
+When I notice a personal problem at work I prefer to talk about it direclty. ,Circumstances,Internal Problems,0.4,0.8,0.6,0,0,0,0,0.2,1,0,1
+My company ignores problems that are part of large scale operations.,Circumstances,Internal Problems,0.8,1,0.4,0,0,0,0.4,0.2,0,0,1
+Relationships at work affect how secure I feel in my role. ,Circumstances,Internal Problems,0.8,0.2,0,0.6,0,0,0,0,0,0,1
+It is safe to talk about problems at work without being punished. ,Circumstances,Internal Problems,0.6,0.8,0.8,0,0,0,0,0.2,1,0,1

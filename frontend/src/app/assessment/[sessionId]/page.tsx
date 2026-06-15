@@ -128,7 +128,7 @@ export default function AssessmentPage() {
             <Card key={question.id}>
               <CardHeader className="pb-3">
                 <p className="text-xs text-muted-foreground">
-                  Question {pageStart + i + 1} · {question.area} · {question.subarea}
+                  Question {pageStart + i + 1}
                 </p>
                 <CardTitle className="text-base font-medium">{question.text}</CardTitle>
               </CardHeader>
